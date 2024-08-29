@@ -29,18 +29,9 @@ addEventListener('keydown', (e) => {
 });
 
 const h3 = document.querySelector('h3');
-addEventListener('keyup', (e) => {
-    const keyWord = e.key;
-    dUp.style.transform = ``;
-    dRight.style.transform = ``;
-    dDown.style.transform = ``;
-    dLeft.style.transform = ``;
-    dUp.style.boxShadow = ``;
-    dRight.style.boxShadow = ``;
-    dDown.style.boxShadow = ``;
-    dLeft.style.boxShadow = ``;
-})
+
 // Random KeyGenerator :
+const span = document.querySelectorAll('span');
 const arr = [];
 const newSequence = () => {
     let i = 10;
@@ -58,19 +49,86 @@ const newSequence = () => {
         else {
             arr.push("&darr;");
         }
-        console.log(i)
     }
-    arr.forEach(item => {
-        const span = document.createElement('span');
-        h3.appendChild(span);
-        span.innerHTML = item;
-        if (Math.random() <= .5) {
-            span.style.color = 'green';
+    span.forEach((item, i) => {
+        item.innerHTML = arr[i];
+        item.style.textShadow = `1px 1px 1px brown,-1px 1px 1px brown,1px -1px 1px brown,-1px -1px 1px brown`
+        if (Math.random() <= Math.random()) {
+            item.style.color = 'green';
         } else {
-            span.style.color = 'red';
-        }
+            item.style.color = 'red';
+        } i++;
     })
 }
-h3.style.textAlign = `center`
 newSequence();
-
+const spanCount = span.length;
+let index = 0;
+// Key Interactions Logic : 
+addEventListener('keyup', (e) => {
+    dUp.style.transform = ``;
+    dRight.style.transform = ``;
+    dDown.style.transform = ``;
+    dLeft.style.transform = ``;
+    dUp.style.boxShadow = ``;
+    dRight.style.boxShadow = ``;
+    dDown.style.boxShadow = ``;
+    dLeft.style.boxShadow = ``;
+    const keyPress = e.key;
+    const currentSpan = span[index];
+    console.log(currentSpan.innerHTML);
+    if (keyPress === `ArrowUp` && currentSpan.innerHTML === `↑` && currentSpan.style.color === `green`) {
+        currentSpan.style.color = `gray`;
+        currentSpan.style.fontSize = `70px`;
+        currentSpan.style.transition = `0.3s ease all`;
+        index++;
+    }
+    else if (keyPress === `ArrowDown` && currentSpan.innerHTML === `↑` && currentSpan.style.color === `red`) {
+        currentSpan.style.color = `gray`;
+        currentSpan.style.fontSize = `70px`;
+        currentSpan.style.transition = `0.3s ease all`;
+        index++;
+    }
+    else if (keyPress === `ArrowUp` && currentSpan.innerHTML === `↓` && currentSpan.style.color === `red`) {
+        currentSpan.style.color = `gray`;
+        currentSpan.style.fontSize = `70px`;
+        currentSpan.style.transition = `0.3s ease all`;
+        index++;
+    }
+    else if (keyPress === `ArrowDown` && currentSpan.innerHTML === `↓` && currentSpan.style.color === `green`) {
+        currentSpan.style.color = `gray`;
+        currentSpan.style.fontSize = `70px`;
+        currentSpan.style.transition = `0.3s ease all`;
+        index++;
+    }
+    else if (keyPress === `ArrowLeft` && currentSpan.innerHTML === `→` && currentSpan.style.color === `red`) {
+        currentSpan.style.color = `gray`;
+        currentSpan.style.fontSize = `70px`;
+        currentSpan.style.transition = `0.3s ease all`;
+        index++;
+    }
+    else if (keyPress === `ArrowLeft` && currentSpan.innerHTML === `←` && currentSpan.style.color === `green`) {
+        currentSpan.style.color = `gray`;
+        currentSpan.style.fontSize = `70px`;
+        currentSpan.style.transition = `0.3s ease all`;
+        index++;
+    }
+    else if (keyPress === `ArrowRight` && currentSpan.innerHTML === `→` && currentSpan.style.color === `green`) {
+        currentSpan.style.color = `gray`;
+        currentSpan.style.fontSize = `70px`;
+        currentSpan.style.transition = `0.3s ease all`;
+        index++;
+    }
+    else if (keyPress === `ArrowRight` && currentSpan.innerHTML === `←` && currentSpan.style.color === `red`) {
+        currentSpan.style.color = `gray`;
+        currentSpan.style.fontSize = `70px`;
+        currentSpan.style.transition = `0.3s ease all`;
+        index++;
+    }
+    if (index >= spanCount) {
+        index = 0;
+        span.forEach(element => {
+            element.style.fontSize = `80px`;
+        })
+        newSequence();
+    }
+})

@@ -80,9 +80,18 @@ table {
 #keyDisplay{
     font-size: 80px;
     transform: translate(0vw,30vh);
-    letter-spacing: 40px;
 }
 h3{
+    display: inline-block;
+    text-align: center;
     width: 70%;
     margin: auto;
+    border-radius: 20px;
+    border: 1px solid brown;
+    box-shadow: 1px 1px 8px 0px gray ;
+    letter-spacing: 15px;
+}
+
+span{
+    text-shadow: 1px 1px solid black,-1px 1px solid black,1px -1px solid black,-1px -1px solid black;
 }
