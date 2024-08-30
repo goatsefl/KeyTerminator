@@ -6,6 +6,30 @@ const dLeft = document.querySelector('#left')
 const dRight = document.querySelector("#right")
 const dDown = document.querySelector("#down")
 
+const startButton = document.querySelector('.main');
+
+const levelArray = [`LEVEL 1 >>`, `LEVEL 2 >> `, `LEVEL 3 >> `, `LEVEL 4 >> `, `LEVEL 5 >>`];
+
+const setComplete = () => {
+    const audio = new Audio("GameAudio/setComplete.wav");
+    audio.currentTime = 0;
+    audio.play();
+}
+const invalidInput = () => {
+    const audio = new Audio('GameAudio/invalid.flac')
+    audio.currentTime = 0;
+    audio.play();
+}
+const clickSoundGreen = () => {
+    const audio = new Audio('GameAudio/Bubbles.wav');
+    audio.currentTime = 0;
+    audio.play();
+}
+const clickSoundRed = () => {
+    const audio = new Audio('GameAudio/MPOP.wav')
+    audio.currentTime = 0;
+    audio.play();
+}
 // KeyPress Event :
 
 addEventListener('keydown', (e) => {
@@ -13,18 +37,22 @@ addEventListener('keydown', (e) => {
     if (direction[5] == 'U') {
         dUp.style.transform = `scale(.95) translateY(-3px)`;
         dUp.style.boxShadow = `0px 0px 10px 5px black inset`;
+        dUp.style.transition = `.3s ease all`;
     }
     if (direction[5] == 'D') {
         dDown.style.transform = `scale(.95) `;
         dDown.style.boxShadow = `0px 0px 10px 5px black inset`;
+        dDown.style.transition = `.3s ease all`;
     }
     if (direction[5] == 'L') {
         dLeft.style.transform = `scale(.95) translateX(20px)`;
         dLeft.style.boxShadow = `0px 0px 10px 5px black inset`;
+        dLeft.style.transition = `.3s ease all`;
     }
     if (direction[5] == 'R') {
         dRight.style.transform = `scale(.95) translateX(-20px)`;
         dRight.style.boxShadow = `0px 0px 10px 5px black inset`;
+        dRight.style.transition = `.3s ease all`;
     }
 });
 
@@ -52,7 +80,6 @@ const newSequence = () => {
     }
     span.forEach((item, i) => {
         item.innerHTML = arr[i];
-        item.style.textShadow = `1px 1px 1px brown,-1px 1px 1px brown,1px -1px 1px brown,-1px -1px 1px brown`
         if (Math.random() <= Math.random()) {
             item.style.color = 'green';
         } else {
@@ -60,75 +87,152 @@ const newSequence = () => {
         } i++;
     })
 }
+let levelNumber = 0;
 newSequence();
-const spanCount = span.length;
-let index = 0;
-// Key Interactions Logic : 
-addEventListener('keyup', (e) => {
-    dUp.style.transform = ``;
-    dRight.style.transform = ``;
-    dDown.style.transform = ``;
-    dLeft.style.transform = ``;
-    dUp.style.boxShadow = ``;
-    dRight.style.boxShadow = ``;
-    dDown.style.boxShadow = ``;
-    dLeft.style.boxShadow = ``;
-    const keyPress = e.key;
-    const currentSpan = span[index];
-    console.log(currentSpan.innerHTML);
-    if (keyPress === `ArrowUp` && currentSpan.innerHTML === `↑` && currentSpan.style.color === `green`) {
-        currentSpan.style.color = `gray`;
-        currentSpan.style.fontSize = `70px`;
-        currentSpan.style.transition = `0.3s ease all`;
-        index++;
-    }
-    else if (keyPress === `ArrowDown` && currentSpan.innerHTML === `↑` && currentSpan.style.color === `red`) {
-        currentSpan.style.color = `gray`;
-        currentSpan.style.fontSize = `70px`;
-        currentSpan.style.transition = `0.3s ease all`;
-        index++;
-    }
-    else if (keyPress === `ArrowUp` && currentSpan.innerHTML === `↓` && currentSpan.style.color === `red`) {
-        currentSpan.style.color = `gray`;
-        currentSpan.style.fontSize = `70px`;
-        currentSpan.style.transition = `0.3s ease all`;
-        index++;
-    }
-    else if (keyPress === `ArrowDown` && currentSpan.innerHTML === `↓` && currentSpan.style.color === `green`) {
-        currentSpan.style.color = `gray`;
-        currentSpan.style.fontSize = `70px`;
-        currentSpan.style.transition = `0.3s ease all`;
-        index++;
-    }
-    else if (keyPress === `ArrowLeft` && currentSpan.innerHTML === `→` && currentSpan.style.color === `red`) {
-        currentSpan.style.color = `gray`;
-        currentSpan.style.fontSize = `70px`;
-        currentSpan.style.transition = `0.3s ease all`;
-        index++;
-    }
-    else if (keyPress === `ArrowLeft` && currentSpan.innerHTML === `←` && currentSpan.style.color === `green`) {
-        currentSpan.style.color = `gray`;
-        currentSpan.style.fontSize = `70px`;
-        currentSpan.style.transition = `0.3s ease all`;
-        index++;
-    }
-    else if (keyPress === `ArrowRight` && currentSpan.innerHTML === `→` && currentSpan.style.color === `green`) {
-        currentSpan.style.color = `gray`;
-        currentSpan.style.fontSize = `70px`;
-        currentSpan.style.transition = `0.3s ease all`;
-        index++;
-    }
-    else if (keyPress === `ArrowRight` && currentSpan.innerHTML === `←` && currentSpan.style.color === `red`) {
-        currentSpan.style.color = `gray`;
-        currentSpan.style.fontSize = `70px`;
-        currentSpan.style.transition = `0.3s ease all`;
-        index++;
-    }
-    if (index >= spanCount) {
-        index = 0;
-        span.forEach(element => {
-            element.style.fontSize = `80px`;
-        })
+let sets = 0;
+const entireLogic = () => {
+    const spanCount = span.length;
+    let errorCounter = 0;
+    let index = 0;
+    // Key Interactions Logic : 
+    addEventListener('keyup', (e) => {
+        dUp.style.transform = ``;
+        dRight.style.transform = ``;
+        dDown.style.transform = ``;
+        dLeft.style.transform = ``;
+        dUp.style.boxShadow = ``;
+        dRight.style.boxShadow = ``;
+        dDown.style.boxShadow = ``;
+        dLeft.style.boxShadow = ``;
+        const keyPress = e.key;
+        const currentSpan = span[index];
+        const currentSpanStyles = () => {
+            currentSpan.style.color = `gray`;
+            currentSpan.style.fontSize = `70px`;
+            currentSpan.style.transition = `0.3s ease all`;
+        }
+        // Successful Sounds :
+        const greenUp = keyPress === `ArrowUp` && currentSpan.innerHTML === `↑` && currentSpan.style.color === `green`;
+        const greenDown = keyPress === `ArrowDown` && currentSpan.innerHTML === `↓` && currentSpan.style.color === `green`;
+        const greenLeft = keyPress === `ArrowLeft` && currentSpan.innerHTML === `←` && currentSpan.style.color === `green`;
+        const greenRight = keyPress === `ArrowRight` && currentSpan.innerHTML === `→` && currentSpan.style.color === `green`;
+        const redUp = keyPress === `ArrowDown` && currentSpan.innerHTML === `↑` && currentSpan.style.color === `red`;
+        const redDown = keyPress === `ArrowUp` && currentSpan.innerHTML === `↓` && currentSpan.style.color === `red`;
+        const redLeft = keyPress === `ArrowRight` && currentSpan.innerHTML === `←` && currentSpan.style.color === `red`;
+        const redRight = keyPress === `ArrowLeft` && currentSpan.innerHTML === `→` && currentSpan.style.color === `red`;
+
+        // UnSuccessful Sounds :
+
+        const noTgreenUp = keyPress === `ArrowUp` && (currentSpan.innerHTML === `↓` || currentSpan.innerHTML === `→` || currentSpan.innerHTML === `←`) && currentSpan.style.color === `green`;
+        const noTgreenDown = keyPress === `ArrowDown` && (currentSpan.innerHTML === `→` || currentSpan.innerHTML === `↑` || currentSpan.innerHTML === `←`) && currentSpan.style.color === `green`;
+        const noTgreenLeft = keyPress === `ArrowLeft` && (currentSpan.innerHTML === `↓` || currentSpan.innerHTML === `↑` || currentSpan.innerHTML === `→`) && currentSpan.style.color === `green`;
+        const noTgreenRight = keyPress === `ArrowRight` && (currentSpan.innerHTML === `↓` || currentSpan.innerHTML === `↑` || currentSpan.innerHTML === `←`) && currentSpan.style.color === `green`;
+        const noTredUp = keyPress === `ArrowDown` && (currentSpan.innerHTML === `↓` || currentSpan.innerHTML === `→` || currentSpan.innerHTML === `←`) && currentSpan.style.color === `red`;
+        const noTredDown = keyPress === `ArrowUp` && (currentSpan.innerHTML === `→` || currentSpan.innerHTML === `↑` || currentSpan.innerHTML === `←`) && currentSpan.style.color === `red`;
+        const noTredLeft = keyPress === `ArrowRight` && (currentSpan.innerHTML === `↓` || currentSpan.innerHTML === `↑` || currentSpan.innerHTML === `→`) && currentSpan.style.color === `red`;
+        const noTredRight = keyPress === `ArrowLeft` && (currentSpan.innerHTML === `↓` || currentSpan.innerHTML === `↑` || currentSpan.innerHTML === `←`) && currentSpan.style.color === `red`;
+        if (noTgreenUp || noTgreenDown || noTgreenLeft || noTgreenRight || noTredUp || noTredDown || noTredRight || noTredLeft) {
+            errorCounter++;
+            invalidInput();
+        }
+        // Gray Out Logic
+        else if (greenUp) {
+            clickSoundGreen();
+            currentSpanStyles();
+            index++;
+        }
+        else if (greenDown) {
+            currentSpanStyles();
+            clickSoundGreen();
+            index++;
+        }
+        else if (greenLeft) {
+            currentSpanStyles();
+            clickSoundGreen();
+            index++;
+        }
+        else if (greenRight) {
+            currentSpanStyles();
+            clickSoundGreen();
+            index++;
+        }
+        else if (redUp) {
+            currentSpanStyles();
+            clickSoundRed();
+            index++;
+        }
+        else if (redDown) {
+            currentSpanStyles();
+            clickSoundRed();
+            index++;
+        }
+        else if (redLeft) {
+            currentSpanStyles();
+            clickSoundRed();
+            index++;
+        }
+        else if (redRight) {
+            currentSpanStyles();
+            clickSoundRed();
+            index++;
+        }
+        if (index >= spanCount) {
+            setComplete();
+            if (sets > 0) {
+                newSequence();
+                sets--;
+            }
+            startButton.textContent = `${levelArray[levelNumber]}`;
+            startButton.style.transform = `translateY(300px)`;
+            startButton.style.fontSize = `50px`;
+            startButton.style.border = `5px solid lightblue`;
+            startButton.style.color = `whitesmoke`;
+            sets = 3;
+            index = 0;
+            levelNumber++;
+            startButton.addEventListener(`click`, () => {
+
+            })
+            span.forEach(element => {
+                element.style.fontSize = `80px`;
+            })
+        }
+    })
+}
+const levels = () => {
+    entireLogic();
+}
+h3.style.display = `none`
+let bool = false;
+const keyBoard = document.querySelector(`.contents`);
+keyBoard.style.display = `none`;
+startButton.style.transform = `translateY(300px)`;
+startButton.addEventListener('click', () => {
+    bool = !bool;
+    if (bool) {
+        startButton.style.fontSize = `25px`
+        startButton.style.transform = ``
+        h3.style.display = ``;
+        keyBoard.style.display = ``;
+        startButton.style.transform = `translateX(600px)`
+        startButton.style.backgroundColor = `red`;
+        startButton.style.color = `white`;
+        document.body.style.backgroundColor = `whitesmoke`;
+        startButton.style.border = `5px solid darkred`
+        startButton.textContent = `STOP`;
+        levels();
+        sets = 2;
+        levels();
+    } else {
+        startButton.style.fontSize = `100px`
+        startButton.textContent = `START`;
+        document.body.style.backgroundColor = ``;
+        h3.style.display = `none`;
+        startButton.style.transform = `translateY(300px)`
+        keyBoard.style.display = `none`
+        startButton.style.color = ``;
+        startButton.style.backgroundColor = ``;
+        startButton.style.border = ``
         newSequence();
     }
 })
