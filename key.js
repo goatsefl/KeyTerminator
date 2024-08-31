@@ -5,10 +5,19 @@ const dUp = document.querySelector('#up')
 const dLeft = document.querySelector('#left')
 const dRight = document.querySelector("#right")
 const dDown = document.querySelector("#down")
-
+const headings = document.querySelector('h1');
+const timerElement = document.querySelector(`h6`);
+const keyBoard = document.querySelector(`.contents`);
 const startButton = document.querySelector('.main');
-
+let seconds = 0;
 const levelArray = [`LEVEL 1 >>`, `LEVEL 2 >> `, `LEVEL 3 >> `, `LEVEL 4 >> `, `LEVEL 5 >>`];
+let lives = 3; // 3 LIVES by Default
+
+const buttonPress = () => {
+    const audio = new Audio("GameAudio/buttonPress.wav");
+    audio.currentTime = 0;
+    audio.play();
+}
 
 const setComplete = () => {
     const audio = new Audio("GameAudio/setComplete.wav");
@@ -21,7 +30,7 @@ const invalidInput = () => {
     audio.play();
 }
 const clickSoundGreen = () => {
-    const audio = new Audio('GameAudio/Bubbles.wav');
+    const audio = new Audio('GameAudio/greenSound2.mp3');
     audio.currentTime = 0;
     audio.play();
 }
@@ -88,7 +97,6 @@ const newSequence = () => {
     })
 }
 let levelNumber = 0;
-newSequence();
 let sets = 0;
 const entireLogic = () => {
     const spanCount = span.length;
@@ -111,7 +119,7 @@ const entireLogic = () => {
             currentSpan.style.fontSize = `70px`;
             currentSpan.style.transition = `0.3s ease all`;
         }
-        // Successful Sounds :
+        // Successful Sounds : 
         const greenUp = keyPress === `ArrowUp` && currentSpan.innerHTML === `↑` && currentSpan.style.color === `green`;
         const greenDown = keyPress === `ArrowDown` && currentSpan.innerHTML === `↓` && currentSpan.style.color === `green`;
         const greenLeft = keyPress === `ArrowLeft` && currentSpan.innerHTML === `←` && currentSpan.style.color === `green`;
@@ -120,9 +128,7 @@ const entireLogic = () => {
         const redDown = keyPress === `ArrowUp` && currentSpan.innerHTML === `↓` && currentSpan.style.color === `red`;
         const redLeft = keyPress === `ArrowRight` && currentSpan.innerHTML === `←` && currentSpan.style.color === `red`;
         const redRight = keyPress === `ArrowLeft` && currentSpan.innerHTML === `→` && currentSpan.style.color === `red`;
-
         // UnSuccessful Sounds :
-
         const noTgreenUp = keyPress === `ArrowUp` && (currentSpan.innerHTML === `↓` || currentSpan.innerHTML === `→` || currentSpan.innerHTML === `←`) && currentSpan.style.color === `green`;
         const noTgreenDown = keyPress === `ArrowDown` && (currentSpan.innerHTML === `→` || currentSpan.innerHTML === `↑` || currentSpan.innerHTML === `←`) && currentSpan.style.color === `green`;
         const noTgreenLeft = keyPress === `ArrowLeft` && (currentSpan.innerHTML === `↓` || currentSpan.innerHTML === `↑` || currentSpan.innerHTML === `→`) && currentSpan.style.color === `green`;
@@ -132,8 +138,15 @@ const entireLogic = () => {
         const noTredLeft = keyPress === `ArrowRight` && (currentSpan.innerHTML === `↓` || currentSpan.innerHTML === `↑` || currentSpan.innerHTML === `→`) && currentSpan.style.color === `red`;
         const noTredRight = keyPress === `ArrowLeft` && (currentSpan.innerHTML === `↓` || currentSpan.innerHTML === `↑` || currentSpan.innerHTML === `←`) && currentSpan.style.color === `red`;
         if (noTgreenUp || noTgreenDown || noTgreenLeft || noTgreenRight || noTredUp || noTredDown || noTredRight || noTredLeft) {
-            errorCounter++;
+            lives--;
             invalidInput();
+            if (!lives) {
+                keyBoard.style.display = `none`;
+                h3.style.display = `none`;
+                span.forEach(element => {
+                    element.textContent = ``;
+                })
+            }
         }
         // Gray Out Logic
         else if (greenUp) {
@@ -182,17 +195,7 @@ const entireLogic = () => {
                 newSequence();
                 sets--;
             }
-            startButton.textContent = `${levelArray[levelNumber]}`;
-            startButton.style.transform = `translateY(300px)`;
-            startButton.style.fontSize = `50px`;
-            startButton.style.border = `5px solid lightblue`;
-            startButton.style.color = `whitesmoke`;
-            sets = 3;
             index = 0;
-            levelNumber++;
-            startButton.addEventListener(`click`, () => {
-
-            })
             span.forEach(element => {
                 element.style.fontSize = `80px`;
             })
@@ -202,37 +205,73 @@ const entireLogic = () => {
 const levels = () => {
     entireLogic();
 }
+// Timer Style :
+timerElement.style.fontSize = `45px`
+timerElement.style.display = `none`;
 h3.style.display = `none`
 let bool = false;
-const keyBoard = document.querySelector(`.contents`);
+
 keyBoard.style.display = `none`;
 startButton.style.transform = `translateY(300px)`;
+const levelOne = () => {
+    lives++;
+    h3.display = `none`;
+    keyBoard.style.display = `none`;
+    startButton.style.transform = `translateY(200px)`;
+    startButton.style.fontSize = `100px`;
+}
+
+const homeAnimation = () => {
+    clearInterval(timer);
+    timerElement.style.display = `none`;
+    headings.innerText = `KEY FOCUS`
+    headings.style.color = ``;
+    startButton.style.fontSize = `100px`
+    startButton.textContent = `START`;
+    document.body.style.backgroundColor = ``;
+    h3.style.display = `none`;
+    startButton.style.transform = `translateY(300px)`
+    keyBoard.style.display = `none`;
+    startButton.style.color = ``;
+    startButton.style.backgroundColor = ``;
+    startButton.style.border = ``;
+    span.forEach(element => {
+        element.innerText = ``;
+    })
+}
+
+const startAnimation = () => {
+    timerElement.style.display = ``;
+    newSequence();
+    startButton.style.fontSize = `45px`
+    let seconds = 60;
+    timer = setInterval(() => {
+        seconds--;
+        timerElement.textContent = `${seconds} `;
+        if (!seconds) {
+            clearInterval(timer);
+        }
+    }, 1000)
+    timerElement.style.boxShadow = `0px 0px 4px 3px darkgray`;
+    startButton.style.transform = ``
+    h3.style.display = ``;
+    keyBoard.style.display = ``;
+    startButton.textContent = `HOME`;
+    startButton.style.transform = `translateX(600px)`
+    startButton.style.backgroundColor = `red`;
+    startButton.style.color = `white`;
+    document.body.style.backgroundColor = `whitesmoke`;
+    startButton.style.border = `5px solid darkred`
+    headings.textContent = `Baby Level`;
+    headings.style.color = "darkslategray";
+    levels();
+}
 startButton.addEventListener('click', () => {
+    buttonPress()
     bool = !bool;
     if (bool) {
-        startButton.style.fontSize = `25px`
-        startButton.style.transform = ``
-        h3.style.display = ``;
-        keyBoard.style.display = ``;
-        startButton.style.transform = `translateX(600px)`
-        startButton.style.backgroundColor = `red`;
-        startButton.style.color = `white`;
-        document.body.style.backgroundColor = `whitesmoke`;
-        startButton.style.border = `5px solid darkred`
-        startButton.textContent = `STOP`;
-        levels();
-        sets = 2;
-        levels();
+        startAnimation();
     } else {
-        startButton.style.fontSize = `100px`
-        startButton.textContent = `START`;
-        document.body.style.backgroundColor = ``;
-        h3.style.display = `none`;
-        startButton.style.transform = `translateY(300px)`
-        keyBoard.style.display = `none`
-        startButton.style.color = ``;
-        startButton.style.backgroundColor = ``;
-        startButton.style.border = ``
-        newSequence();
+        homeAnimation();
     }
 })

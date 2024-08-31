@@ -81,17 +81,17 @@ table {
 }
 #keyDisplay{
     font-size: 80px;
-    transform: translate(0vw,30vh);
+    transform: translate(0vw,15vh);
 }
 h3{
     display: inline-block;
     text-align: center;
     width: 70%;
     margin: auto;
-    /* border-radius: 20px;
-    border: 1px solid brown; */
+    border-radius: 5px;
     box-shadow: 1px 1px 8px 0px gray ;
     letter-spacing: 15px;
+    transform: translateY(200px);
 }
 
 span{
@@ -100,16 +100,16 @@ span{
 }
 
 .main{
+    font-family: monospace;
     font-size: 100px;
-    font-weight: 300;
+    font-weight: 400;
     color: black;
     border: 5px solid lightgreen;
     background-color: lightgreen;
-    transition: all .25s linear;
+    transition: all .3s ease-in-out;;
 }
 
 .main:hover{
-    font-family: monospace;
     transform: scale(1.1);
     border: 5px solid darkgreen;
     background-color: green;
@@ -118,6 +118,40 @@ span{
     border-radius: 10px;
 }
 
-@keyframes mainButton {
-    
+@keyframes timerSlideToLeft {
+    0%{
+        transform: translateX(2130%) translateY(-220%);
+    }
+    100%{
+        transform: translateX(2130%);
+    }
+}
+
+h1{
+    transition :  all .5s ease-in-out;
+}
+
+h6{
+    animation: timerSlideToLeft .5s ease-in-out;
+    display: flex;
+    transform: translateX(2130%);
+    background-color: lightgray;
+    line-height: 1.5;
+    border-radius: 50%;
+    width: 70px;
+    height: 70px;
+    padding: 10px auto;
+    justify-content: center;
+    align-items: center;
+}
+
+.heart{
+    height: 50px;
+    width: 50px;
+    color: red;
+}
+.h-broken{
+    color: red;
+    height:45px ;
+    width: 45px;
 }
