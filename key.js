@@ -1,18 +1,65 @@
-// Button Animation Logic :
+// GAME STATE INFO :
 
+// 0. Assign this IIFE's return value to a variable
+(function () {
+    const getInitialGameState = () => ({
+        lives: 3,
+        seconds: 60,
+        levels: 5,
+        isStart: false,
+        isGameOver: false,
+        gameAudio: {
+            getGameAudio: () => new Audio("GameAudio/gameBackgroundMusic.mp3"),
+            getClickAudio: () => new Audio("GameAudio/buttonPress.wav"),
+            getKeyboardSounds: () => ({
+                getInvalidAudio: () => new Audio('GameAudio/invalid.flac'),
+                getGreenAudio: () => new Audio(`GameAudio/greenSound2.mp3`),
+                getRedAudio: () => new Audio("GameAudio/MPOP.wav")
+            })
+        },
+    });
+    const gameState = getInitialGameState();
+
+    console.log(gameState);
+    // I. create a game state object (ensure it's a deep copy of initialGameState)
+    // II. create utility methods to manipulate the game state object
+    // 1. incrementGameLevel
+    // 2. getGameLevel
+    // 3. startGame
+    // 4. endGame
+    // 5. isGameRunning
+    // 6. isGameOver
+    // 7. getGameLife
+    // 8. decrementGameLife
+    // 9. resetGameState
+    // 10. getGameAudio
+    // 11. printGameState // just for debugging
+    // 12. <create any other method you feel that makes sense>
+    // III. return an object with all the aforementioned utility methods from 1..9.
+})();
+// IV. Refactor the code below to use the gameModule above for creating the game logic.
+// Button Animation Logic :
 const buttons = document.querySelectorAll('.btns');
 const dUp = document.querySelector('#up')
 const dLeft = document.querySelector('#left')
 const dRight = document.querySelector("#right")
 const dDown = document.querySelector("#down")
 const headings = document.querySelector('h1');
-const timerElement = document.querySelector(`h6`);
 const keyBoard = document.querySelector(`.contents`);
 const startButton = document.querySelector('.main');
+startButton.style.transform = `translateY(200px)`
+// TIMER
+let timer;
+const timerElement = document.querySelector(`h6`);
 let seconds = 0;
-const levelArray = [`LEVEL 1 >>`, `LEVEL 2 >> `, `LEVEL 3 >> `, `LEVEL 4 >> `, `LEVEL 5 >>`];
+// LIVES 
 let lives = 3; // 3 LIVES by Default
-
+const heart = document.querySelector(`.heart`);
+heart.style.display = `none`;
+const defaultLife = document.querySelector(`.default`);
+// LEVEL ARRAY
+const levelArray = [`LEVEL 1 `, `LEVEL 2 `, `LEVEL 3 `, `LEVEL 4 `, `LEVEL 5 `];
+let bool = false;
 const buttonPress = () => {
     const audio = new Audio("GameAudio/buttonPress.wav");
     audio.currentTime = 0;
@@ -43,22 +90,22 @@ const clickSoundRed = () => {
 
 addEventListener('keydown', (e) => {
     const direction = e.key;
-    if (direction[5] == 'U') {
+    if (direction === 'ArrowUp') {
         dUp.style.transform = `scale(.95) translateY(-3px)`;
         dUp.style.boxShadow = `0px 0px 10px 5px black inset`;
         dUp.style.transition = `.3s ease all`;
     }
-    if (direction[5] == 'D') {
+    if (direction === 'ArrowDown') {
         dDown.style.transform = `scale(.95) `;
         dDown.style.boxShadow = `0px 0px 10px 5px black inset`;
         dDown.style.transition = `.3s ease all`;
     }
-    if (direction[5] == 'L') {
+    if (direction === 'ArrowLeft') {
         dLeft.style.transform = `scale(.95) translateX(20px)`;
         dLeft.style.boxShadow = `0px 0px 10px 5px black inset`;
         dLeft.style.transition = `.3s ease all`;
     }
-    if (direction[5] == 'R') {
+    if (direction === 'ArrowRight') {
         dRight.style.transform = `scale(.95) translateX(-20px)`;
         dRight.style.boxShadow = `0px 0px 10px 5px black inset`;
         dRight.style.transition = `.3s ease all`;
@@ -100,7 +147,6 @@ let levelNumber = 0;
 let sets = 0;
 const entireLogic = () => {
     const spanCount = span.length;
-    let errorCounter = 0;
     let index = 0;
     // Key Interactions Logic : 
     addEventListener('keyup', (e) => {
@@ -139,13 +185,13 @@ const entireLogic = () => {
         const noTredRight = keyPress === `ArrowLeft` && (currentSpan.innerHTML === `↓` || currentSpan.innerHTML === `↑` || currentSpan.innerHTML === `←`) && currentSpan.style.color === `red`;
         if (noTgreenUp || noTgreenDown || noTgreenLeft || noTgreenRight || noTredUp || noTredDown || noTredRight || noTredLeft) {
             lives--;
+            console.log(lives);
+            defaultLife.textContent = `x ${lives}`
             invalidInput();
             if (!lives) {
-                keyBoard.style.display = `none`;
-                h3.style.display = `none`;
-                span.forEach(element => {
-                    element.textContent = ``;
-                })
+                span.length = 0;
+                index = 0;
+                restart();
             }
         }
         // Gray Out Logic
@@ -202,17 +248,20 @@ const entireLogic = () => {
         }
     })
 }
+const restart = () => {
+    lives = 3;
+    bool = false;
+    homeAnimation();
+}
 const levels = () => {
+    console.log(entireLogic())
     entireLogic();
 }
 // Timer Style :
 timerElement.style.fontSize = `45px`
 timerElement.style.display = `none`;
 h3.style.display = `none`
-let bool = false;
-
 keyBoard.style.display = `none`;
-startButton.style.transform = `translateY(300px)`;
 const levelOne = () => {
     lives++;
     h3.display = `none`;
@@ -223,6 +272,8 @@ const levelOne = () => {
 
 const homeAnimation = () => {
     clearInterval(timer);
+    defaultLife.textContent = ``;
+    heart.style.display = `none`;
     timerElement.style.display = `none`;
     headings.innerText = `KEY FOCUS`
     headings.style.color = ``;
@@ -230,7 +281,7 @@ const homeAnimation = () => {
     startButton.textContent = `START`;
     document.body.style.backgroundColor = ``;
     h3.style.display = `none`;
-    startButton.style.transform = `translateY(300px)`
+    startButton.style.transform = `translateY(200px)`
     keyBoard.style.display = `none`;
     startButton.style.color = ``;
     startButton.style.backgroundColor = ``;
@@ -241,6 +292,8 @@ const homeAnimation = () => {
 }
 
 const startAnimation = () => {
+    defaultLife.textContent = `  x ${lives}`;
+    heart.style.display = ``;
     timerElement.style.display = ``;
     newSequence();
     startButton.style.fontSize = `45px`
@@ -257,7 +310,7 @@ const startAnimation = () => {
     h3.style.display = ``;
     keyBoard.style.display = ``;
     startButton.textContent = `HOME`;
-    startButton.style.transform = `translateX(600px)`
+    startButton.style.transform = `translateX(450%) translateY(-250px)`
     startButton.style.backgroundColor = `red`;
     startButton.style.color = `white`;
     document.body.style.backgroundColor = `whitesmoke`;
@@ -269,9 +322,14 @@ const startAnimation = () => {
 startButton.addEventListener('click', () => {
     buttonPress()
     bool = !bool;
+    console.log(bool);
     if (bool) {
         startAnimation();
     } else {
         homeAnimation();
     }
 })
+
+
+
+
