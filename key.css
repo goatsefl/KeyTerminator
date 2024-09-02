@@ -155,3 +155,7 @@ h6{
     font-size: 35px;
     transform: translateX(-800%) translateY(-95%);
 }
+
+.translate-medium {
+    transform: translateY(200px);
+}

@@ -1,26 +1,181 @@
-// GAME STATE INFO :
+function animateToLevelZero() {
+    defaultLife.textContent = `  x ${gameState.lives}`;
+    heart.style.display = ``;
+    timerElement.style.display = ``;
+    startButton.style.fontSize = `45px`
+    timer = setInterval(() => {
+        gameState.seconds = gameState.seconds - 1;
+        timerElement.textContent = `${gameState.seconds} `;
+        if (gameState.seconds <= 0) {
+            clearInterval(timer);
+        }
+    }, 1000)
+    timerElement.style.boxShadow = `0px 0px 4px 3px darkgray`;
+    startButton.style.transform = ``
+    h3.style.display = ``;
+    keyBoard.style.display = ``;
+    startButton.textContent = `HOME`;
+    startButton.style.transform = `translateX(450%) translateY(-250px)`
+    startButton.style.backgroundColor = `red`;
+    startButton.style.color = `white`;
+    document.body.style.backgroundColor = `whitesmoke`;
+    startButton.style.border = `5px solid darkred`
+    headings.textContent = `Baby Level`;
+    headings.style.color = "darkslategray";
+}
 
+function animateToHomePage() {
+    clearInterval(timer);
+    defaultLife.textContent = ``;
+    heart.style.display = `none`;
+    timerElement.style.display = `none`;
+    headings.innerText = `KEY FOCUS`
+    headings.style.color = `black`;
+    startButton.style.fontSize = `100px`
+    startButton.textContent = `START`;
+    document.body.style.backgroundColor = ``;
+    h3.style.display = `none`;
+    startButton.style.transform = `translateY(200px)`
+    keyBoard.style.display = `none`;
+    startButton.style.color = ``;
+    startButton.style.backgroundColor = ``;
+    startButton.style.border = ``;
+    span.forEach(element => {
+        element.innerText = ``;
+    })
+}
+function animateToRetry() {
+    clearInterval(timer);
+    defaultLife.textContent = ``;
+    heart.style.display = `none`;
+    timerElement.style.display = `none`;
+    headings.innerText = ``;
+    headings.style.color = `black`;
+    startButton.style.fontSize = `80px`
+    startButton.textContent = `RETRY`;
+    document.body.style.backgroundColor = ``;
+    h3.style.display = `none`;
+    startButton.style.transform = `translateY(200px)`
+    keyBoard.style.display = `none`;
+    startButton.style.color = `white`;
+    startButton.style.backgroundColor = `chocolate`;
+    startButton.style.border = `brown`;
+    span.forEach(element => {
+        element.innerText = ``;
+    })
+}
+
+// GAME STATE INFO :
 // 0. Assign this IIFE's return value to a variable
-(function () {
+const gameModule = (function () {
     const getInitialGameState = () => ({
         lives: 3,
         seconds: 60,
-        levels: 5,
+        levelsInfo: {
+            currentLevel: 0,
+            totalLevels: 5,
+            setInfoList: [1, 2, 3, 6, 8, 11]
+        },
         isStart: false,
         isGameOver: false,
+        sound: true,
         gameAudio: {
             getGameAudio: () => new Audio("GameAudio/gameBackgroundMusic.mp3"),
             getClickAudio: () => new Audio("GameAudio/buttonPress.wav"),
             getKeyboardSounds: () => ({
                 getInvalidAudio: () => new Audio('GameAudio/invalid.flac'),
-                getGreenAudio: () => new Audio(`GameAudio/greenSound2.mp3`),
+                getGreenAudio: () => new Audio()(`GameAudio/greenSound2.mp3`),
                 getRedAudio: () => new Audio("GameAudio/MPOP.wav")
             })
         },
     });
     const gameState = getInitialGameState();
+    function startGame() {
+        gameState.isStart = true;
+        gameState.currentLevel = 0;
+        gameState.gameAudio.getClickAudio();
+        animateToLevelZero();
+    }
+    function gameOver() {
+        if ((!gameState.lives || !gameState.seconds) && !gameState.levelsInfo.currentLevel) {
+            gameState = getInitialGameState();
+            animateToHomePage();
+        }
+        if ((!gameState.lives || !gameState.seconds) && gameState.levelsInfo.currentLevel > 0) {
+            animateToRetry();
+            resetGameLivesAndTimer();
+        }
+    }
+    function levelUp() {
+        // Level 0 -> 5:
+        const currentLevel = gameState.levelsInfo.currentLevel;
+        if (!gameState.levelsInfo.setInfoList[currentLevel] && gameState.lives > 0 && gameState.seconds > 0) {
+            resetGameLivesAndTimer();
+            const gameLevel = initialGameState();
+            gameState.levelsInfo.currentLevel++;
+        }
+    }
+    function resetGameLivesAndTimer() {
+        const initialGameState = getInitialGameState();
+        gameState.lives = initialGameState.lives;
+        gameState.seconds = initialGameState.seconds;
+    }
+    function resetGameState() {
+        gameState = getInitialGameState();
+        animateToHomePage();
+    }
+    function getGameLife() {
+        const gameLife = gameState.lives;
+        return gameLife;
+    }
+    function endGame() {
+        resetGameState();
+        animateToHomePage();
+    }
+    function gameMusicPlay() {
+        const backgroundMusic = gameState.gameAudio.getGameAudio();
+        backgroundMusic.currentTime = 0;
+        backgroundMusic.play();
+    }
+    function gameMusicStop() {
+        const backgroundMusic = gameState.gameAudio.getGameAudio();
+        backgroundMusic.pause();
+    }
+    function muteAudio() {
+        gameState.sound = false;
+        const sounds = [
+            gameState.gameAudio.getGameAudio(),
+            gameState.gameAudio.getClickAudio(),
+            gameState.gameAudio.getKeyboardSounds(),
+            keyboardSounds.getInvalidAudio(),
+            keyboardSounds.getGreenAudio(),
+            keyboardSounds.getRedAudio()
+        ];
+        sounds.forEach(audio => audio.pause());
+    }
+    function unMuteAudio() {
+        gameState.sound = true;
+        const sounds = [
+            gameState.gameAudio.getGameAudio(),
+            gameState.gameAudio.getClickAudio(),
+            gameState.gameAudio.getKeyboardSounds(),
+            keyboardSounds.getInvalidAudio(),
+            keyboardSounds.getGreenAudio(),
+            keyboardSounds.getRedAudio()
+        ];
+        sounds.forEach(audio => {
+            audio.currentTime = 0;
+            audio.play()
+        });
+    }
+    function decrementGameLife() {
+        gameState.lives--;
+    }
 
-    console.log(gameState);
+    function printGameState() {
+        console.log(gameState);
+    }
+
     // I. create a game state object (ensure it's a deep copy of initialGameState)
     // II. create utility methods to manipulate the game state object
     // 1. incrementGameLevel
@@ -36,18 +191,46 @@
     // 11. printGameState // just for debugging
     // 12. <create any other method you feel that makes sense>
     // III. return an object with all the aforementioned utility methods from 1..9.
+
+    // return {
+    //     incrementGameLevel: () => gameState.levelsInfo.currentLevel++
+    // }
 })();
 // IV. Refactor the code below to use the gameModule above for creating the game logic.
 // Button Animation Logic :
+
+(function () {
+
+})()
+const elementIDs = {
+    leftButton: 'left',
+    rightButton: 'right'
+}
+
+const elementClasses = {
+    keyboardElement: 'contents'
+}
+
+const stylingClasses = {
+    translateMedium: 'translate-medium'
+};
+
+const getElement = (elementIdentifier, elementString) => document.querySelector(`${elementIdentifier}${elementString}`);
+const getIdElement = elementString => getElement('#', elementString);
+const getClassElement = elementString => getElement('.', elementString);
+
 const buttons = document.querySelectorAll('.btns');
 const dUp = document.querySelector('#up')
-const dLeft = document.querySelector('#left')
-const dRight = document.querySelector("#right")
+const dLeft = getIdElement(elementIDs.leftButton)
+const dRight = document.querySelector(`#${elementIDs.rightButton}`)
 const dDown = document.querySelector("#down")
 const headings = document.querySelector('h1');
-const keyBoard = document.querySelector(`.contents`);
+const keyBoard = getClassElement(elementClasses.keyboardElement);
 const startButton = document.querySelector('.main');
 startButton.style.transform = `translateY(200px)`
+startButton.classList.add(stylingClasses.translateMedium);
+
+
 // TIMER
 let timer;
 const timerElement = document.querySelector(`h6`);
@@ -112,7 +295,7 @@ addEventListener('keydown', (e) => {
     }
 });
 
-const h3 = document.querySelector('h3');
+const sequenceDisplay = document.querySelector('h3');
 
 // Random KeyGenerator :
 const span = document.querySelectorAll('span');
@@ -330,6 +513,16 @@ startButton.addEventListener('click', () => {
     }
 })
 
+function logic() {
+    // ...
+    // ...
+    gameModule.incrementGameLevel();
+}
+
+// gameModule
+// gameController
 
 
+const controller = (function (game, view) {
 
+})(gameModule, viewModule)
