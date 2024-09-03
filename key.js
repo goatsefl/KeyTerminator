@@ -176,6 +176,19 @@ const gameModule = (function () {
         console.log(gameState);
     }
 
+    return startGame,
+        gameOver,
+        levelUp,
+        resetGameLivesAndTimer,
+        resetGameState,
+        muteAudio,
+        unMuteAudio,
+        decrementGameLife,
+        printGameState,
+        getGameLife,
+        endGame,
+        gameMusicPlay,
+        gameMusicStop
     // I. create a game state object (ensure it's a deep copy of initialGameState)
     // II. create utility methods to manipulate the game state object
     // 1. incrementGameLevel
