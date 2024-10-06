@@ -52,11 +52,12 @@ table {
     height: 100vh;
 }
 .contents{
+    display: inline-block;
     height: 300px;
     position : absolute;
     top : 50%;
     right: 50%;
-    transform: translate(50%,50%);
+    transform: translate(50%,55%);
 }
 .btns{
     color: rgb(58, 58, 58);
@@ -81,7 +82,7 @@ table {
 }
 #keyDisplay{
     font-size: 80px;
-    transform: translate(0vw,15vh);
+    transform: translate(0vw,5vh);
 }
 h3{
     display: inline-block;
@@ -91,7 +92,6 @@ h3{
     border-radius: 5px;
     box-shadow: 1px 1px 8px 0px gray ;
     letter-spacing: 15px;
-    transform: translateY(200px);
 }
 
 span{
@@ -106,7 +106,7 @@ span{
     color: black;
     border: 5px solid lightgreen;
     background-color: lightgreen;
-    transition: all .3s ease-in-out;;
+    transition: all .3s ease-in-out;
 }
 
 .main:hover{
@@ -120,21 +120,20 @@ span{
 
 @keyframes timerSlideToLeft {
     0%{
-        transform: translateX(2130%) translateY(-220%);
+        transform: translateX(2130%) translateY(-260%);
     }
     100%{
-        transform: translateX(2130%);
+        transform: translateX(2130%) translateY(-55%);
     }
 }
-
 h1{
     transition :  all .5s ease-in-out;
 }
 
 h6{
-    animation: timerSlideToLeft .5s ease-in-out;
+    animation: timerSlideToLeft .3s ease-in-out;
     display: flex;
-    transform: translateX(2130%);
+    transform: translateX(2130%) translateY(-60%);
     background-color: lightgray;
     line-height: 1.5;
     border-radius: 50%;
@@ -144,14 +143,19 @@ h6{
     justify-content: center;
     align-items: center;
 }
-
-.heart{
-    height: 50px;
-    width: 50px;
-    color: red;
+.lives{
+    display: inline-block;
 }
-.h-broken{
-    color: red;
-    height:45px ;
-    width: 45px;
+.heart{
+    transform: translateX(-2000%);
+    height: 30px;
+    width: 30px;
+}
+.default{
+    font-size: 35px;
+    transform: translateX(-800%) translateY(-95%);
+}
+
+.transform-translate-y-200px {
+    transform: translateY(200px);
 }
