@@ -80,11 +80,9 @@ table {
 #right{
     transform: translateX(-25px);
 }
-#keyDisplay{
+.keyDisplay{
     font-size: 80px;
     transform: translate(0vw,5vh);
-}
-h3{
     display: inline-block;
     text-align: center;
     width: 70%;
@@ -94,7 +92,7 @@ h3{
     letter-spacing: 15px;
 }
 
-span{
+.arrows{
     text-align: center;
     text-shadow: 1px 1px brown,-1px 1px brown,1px -1px  brown,-1px -1px brown;
 }
@@ -126,11 +124,11 @@ span{
         transform: translateX(2130%) translateY(-55%);
     }
 }
-h1{
+.main_heading{
     transition :  all .5s ease-in-out;
 }
 
-h6{
+.timer{
     animation: timerSlideToLeft .3s ease-in-out;
     display: flex;
     transform: translateX(2130%) translateY(-60%);
@@ -156,6 +154,7 @@ h6{
     transform: translateX(-800%) translateY(-95%);
 }
 
-.translate-medium {
+.transform-translate-y-200px {
     transform: translateY(200px);
 }
+
