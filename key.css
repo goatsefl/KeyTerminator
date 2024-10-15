@@ -178,6 +178,9 @@ table {
 .color-black{
     color : black;
 }
+.color-gray{
+    color : gray;
+}
 /* Button Borders */
 .border-retry{
     border : brown
@@ -209,9 +212,16 @@ table {
 .font-size-45{
     font-size: 45px;
 }
+.font-size{
+    font-size : 70px;
+}
 .font-size-80{
     font-size: 80px;
 }
 .font-size-100{
     font-size: 100px;
+}
+
+.arrow-transition-to-gray{
+    transition : 0.3s ease all;    
 }
