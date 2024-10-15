@@ -1,6 +1,8 @@
 
 // GAME STATE INFO :
 // 0. Assign this IIFE's return value to a variable
+
+
 const gameModule = (function () {
     const getInitialGameState = () => ({
         lives: 3,
@@ -16,6 +18,7 @@ const gameModule = (function () {
         gameAudio: {
             getGameAudio: () => new Audio("GameAudio/gameBackgroundMusic.mp3"),
             getClickAudio: () => new Audio("GameAudio/buttonPress.wav"),
+            getStartSound: () => new Audio("GameAudio/start_sound.wav"),
             getKeyboardSounds: () => ({
                 getInvalidAudio: () => new Audio('GameAudio/invalid.flac'),
                 getGreenAudio: () => new Audio()(`GameAudio/greenSound2.mp3`),
@@ -23,7 +26,7 @@ const gameModule = (function () {
             })
         },
     });
-    const gameState = getInitialGameState();
+    let gameState = getInitialGameState();
     function startGame() {
         gameState.isStart = true;
         gameState.currentLevel = 0;
@@ -34,20 +37,30 @@ const gameModule = (function () {
             resetGameState();
         }
         if ((!gameState.lives || !gameState.seconds) && gameState.levelsInfo.currentLevel > 0) {
-            resetGameLivesAndTimer();
+            resetGameLives();
+            resetGameTimer();
         }
     }
     function levelUp() {
         // Level 0 -> 5:
         const currentLevel = gameState.levelsInfo.currentLevel;
-        if (!gameState.levelsInfo.setInfoList[currentLevel] && gameState.lives > 0 && gameState.seconds > 0) {
-            resetGameLivesAndTimer();
+        if (gameState.lives > 0 && gameState.seconds > 0) {
+            resetGameLives();
+            resetGameTimer();
             gameState.levelsInfo.currentLevel++;
+            increaseSetCount();
         }
     }
-    function resetGameLivesAndTimer() {
+    function increaseSetCount() {
+        let level = gameState.levelsInfo.currentLevel;
+        gameState.levelsInfo.setInfoList[level];
+    }
+    function resetGameLives() {
         const initialGameState = getInitialGameState();
         gameState.lives = initialGameState.lives;
+    }
+    function resetGameTimer() {
+        const initialGameState = getInitialGameState();
         gameState.seconds = initialGameState.seconds;
     }
     function resetGameState() {
@@ -73,6 +86,7 @@ const gameModule = (function () {
         gameState.sound = false;
         const sounds = [
             gameState.gameAudio.getGameAudio(),
+            gameState.gameAudio.getStartSound(),
             gameState.gameAudio.getClickAudio(),
             gameState.gameAudio.getKeyboardSounds(),
             keyboardSounds.getInvalidAudio(),
@@ -85,6 +99,7 @@ const gameModule = (function () {
         gameState.sound = true;
         const sounds = [
             gameState.gameAudio.getGameAudio(),
+            gameState.gameAudio.getStartSound(),
             gameState.gameAudio.getClickAudio(),
             gameState.gameAudio.getKeyboardSounds(),
             keyboardSounds.getInvalidAudio(),
@@ -99,7 +114,6 @@ const gameModule = (function () {
     function decrementGameLife() {
         gameState.lives--;
     }
-
     function printGameState() {
         console.log(gameState);
     }
@@ -108,7 +122,8 @@ const gameModule = (function () {
         startGame,
         gameOver,
         levelUp,
-        resetGameLivesAndTimer,
+        resetGameLives,
+        resetGameTimer,
         resetGameState,
         muteAudio,
         unMuteAudio,
@@ -118,7 +133,7 @@ const gameModule = (function () {
         endGame,
         gameMusicPlay,
         gameMusicStop
-    }
+    };
     // I. create a game state object (ensure it's a deep copy of initialGameState)
     // II. create utility methods to manipulate the game state object
     // 1. incrementGameLevel
@@ -143,16 +158,50 @@ const gameModule = (function () {
 // Button Animation Logic :
 
 const viewModule = (function () {
+    // Global Timer Variable :
+
+    let timer;
+    function StartTimer() {
+        timer = setInterval(() => {
+            gameState.seconds = gameState.seconds - 1;
+            timerElement.textContent = `${gameState.seconds}`;
+            if (gameState.seconds <= 0) {
+                clearInterval(timer);
+                const secondsReset = initialGameState.seconds;
+                gameState.seconds = secondsReset;
+            }
+        }, 1000)
+    }
+    function StopTimer() {
+        clearInterval(timer);
+    }
+
+    // Level timer
+    const timerElement = document.querySelector(`timer`);
+    // Default Lives 
+    const defaultLife = document.querySelector(`.default_lives`);
+    // Displays all the random arrow-elements
+    const sequenceDisplay = document.querySelector('.keyDisplay');
+    const span = document.querySelectorAll('.arrow-element');
+    const heart = document.querySelector(`.heart`);
+    const buttons = document.querySelectorAll('.btns');
+    const dUp = document.querySelector(`#${elementIDs.upButton}`)
+    const dLeft = document.querySelector(`#${elementIDs.leftButton}`)
+    const dRight = document.querySelector(`#${elementIDs.rightButton}`)
+    const dDown = document.querySelector(`#${elementIDs.downButton}`)
+    const headings = document.querySelector('main_heading');
+    const keyBoard = getClassElement(elementClasses.keyboardElement);
+    const startButton = document.querySelector('.main');
     const DOMStrings = {
-        entireContainer: 'container',
-        changeHeading: 'main_heading',
-        defaultLives: 'default',
+        container: 'container',
+        mainHeading: 'main_heading',
+        defaultLives: 'default_lives',
         currentLives: 'lives',
         mainButton: 'main',
         liveDisplay: 'heart',
         timerDisplay: 'timer',
         keyDirections: 'btns',
-        randomKeyArrows: 'arrows',
+        randomKeyArrows: 'arrow-element',
         keyboardContents: 'contents'
     }
     const newSequence = () => {
@@ -167,7 +216,7 @@ const viewModule = (function () {
                 arr.push("&rarr;");
             }
             else if (random <= .75) {
-                arr.push("&rarr;");
+                arr.push("&larr;");
             }
             else {
                 arr.push("&darr;");
@@ -175,179 +224,147 @@ const viewModule = (function () {
         }
         span.forEach((item, i) => {
             item.innerHTML = arr[i];
-            if (Math.random() <= Math.random()) {
-                item.style.color = 'green';
-            } else {
-                item.style.color = 'red';
-            } i++;
+            item.style.color = (Math.random() <= Math.random()) ? 'green' : 'red';
         })
     }
     function animateToLevelZero() {
         defaultLife.textContent = `  x ${gameState.lives}`;
-        heart.style.display = ``;
-        timerElement.style.display = ``;
-        startButton.style.fontSize = `45px`
-        timer = setInterval(() => {
-            gameState.seconds = gameState.seconds - 1;
-            timerElement.textContent = `${gameState.seconds} `;
-            if (gameState.seconds <= 0) {
-                clearInterval(timer);
-            }
-        }, 1000)
-        timerElement.style.boxShadow = `0px 0px 4px 3px darkgray`;
-        startButton.style.transform = ``
-        sequenceDisplay.style.display = ``;
-        keyBoard.style.display = ``;
+        heart.classList.add('display-visible');
+        timerElement.classList.add('display-visible');
+        startButton.classList.add('font-size-45');
+        timerElement.classList.add('timer-boxShadow');
+        sequenceDisplay.classList.add('display-visible');
+        keyBoard.classList.add('display-visible');
         startButton.textContent = `HOME`;
-        startButton.style.transform = `translateX(450%) translateY(-250px)`
-        startButton.style.backgroundColor = `red`;
-        startButton.style.color = `white`;
-        document.body.style.backgroundColor = `whitesmoke`;
-        startButton.style.border = `5px solid darkred`
+        startButton.style.transform = `translateX(450%) translateY(-250px)`;
+        startButton.classList.add('bg-red');
+        startButton.classList.add('color-white');
+        document.body.classList.add('bg-whitesmoke')
+        startButton.classList.add('border-home');
         headings.textContent = `Baby Level`;
-        headings.style.color = "darkslategray";
+        headings.classList.add('color-darkslategray')
+        StartTimer();
     }
-    function animateToRetry() {
-        clearInterval(timer);
-        defaultLife.textContent = ``;
-        heart.style.display = `none`;
-        timerElement.style.display = `none`;
-        headings.innerText = ``;
-        headings.style.color = `black`;
-        startButton.style.fontSize = `80px`
+    const animateToRetry = () => {
+        StopTimer();
+        defaultLife.classList.add('display-hidden');
+        heart.classList.add('display-hidden');
+        timerElement.classList.add('display-hidden');
+        headings.classList.add('display-hidden');
+        headings.classList.add('color-black');
+        startButton.classList.add('font-size-80');
         startButton.textContent = `RETRY`;
-        document.body.style.backgroundColor = ``;
-        sequenceDisplay.style.display = `none`;
-        startButton.style.transform = `translateY(200px)`
-        keyBoard.style.display = `none`;
-        startButton.style.color = `white`;
-        startButton.style.backgroundColor = `chocolate`;
-        startButton.style.border = `brown`;
+        document.body.classList.add('bg-lightgreen');
+        sequenceDisplay.classList.add('display-hidden');
+        startButton.classList.add('transform-translate-y-200px')
+        keyBoard.classList.add('display-hidden');
+        startButton.classList.add('color-white')
+        startButton.classList.add('bg-color-chocolate');
+        startButton.classList.add('border-retry');
         span.forEach(element => {
-            element.innerText = ``;
+            element.classList.add('display-hidden');
         })
     }
-    function animateToHomePage() {
-        clearInterval(timer);
-        defaultLife.textContent = ``;
-        heart.style.display = `none`;
-        timerElement.style.display = `none`;
-        headings.innerText = `KEY FOCUS`
-        headings.style.color = `black`;
-        startButton.style.fontSize = `100px`
+    const animateToHomePage = () => {
+        StopTimer();
+        defaultLife.classList.add('display-hidden');
+        heart.classList.add('display-hidden');
+        timerElement.classList.add('display-hidden');
+        headings.innerText = `KEY FOCUS`;
+        headings.classList.add('color-black');
+        startButton.classList.add('font-size-100');
         startButton.textContent = `START`;
-        document.body.style.backgroundColor = ``;
-        sequenceDisplay.style.display = `none`;
-        startButton.style.transform = `translateY(200px)`
-        keyBoard.style.display = `none`;
-        startButton.style.color = ``;
-        startButton.style.backgroundColor = ``;
-        startButton.style.border = ``;
+        document.body.classList.add('bg-lightgreen');
+        sequenceDisplay.classList.add('display-hidden');
+        startButton.classList.add('transform-translate-y-200px');
+        keyBoard.classList.add('display-hidden');
+        startButton.classList.add('color-black');
+        startButton.classList.add('bg-lightgreen');
+        startButton.classList.add('border-start');
         span.forEach(element => {
-            element.innerText = ``;
+            element.classList.add('display-hidden');
         })
     }
-    function keyBoardOnView() {
+    const animateToLevelOne = () => {
+
+    }
+    const animateToLevelTwo = () => {
+
+    }
+    const animateToLevelThree = () => {
+
+    }
+    const animateToLevelFour = () => {
+
+    }
+    const animateToLevelFive = () => {
+
+    }
+    const keyBoardOnView = () => {
+        function addBoxShadowAndTransition(element) {
+            element.classList.add('transformKeyBoardOnView');
+        }
         addEventListener('keydown', (e) => {
             const direction = e.key;
             if (direction === 'ArrowUp') {
                 dUp.style.transform = `scale(.95) translateY(-3px)`;
-                dUp.style.boxShadow = `0px 0px 10px 5px black inset`;
-                dUp.style.transition = `.3s ease all`;
+                addBoxShadowAndTransition(dUp);
             }
             if (direction === 'ArrowDown') {
                 dDown.style.transform = `scale(.95) `;
-                dDown.style.boxShadow = `0px 0px 10px 5px black inset`;
-                dDown.style.transition = `.3s ease all`;
+                addBoxShadowAndTransition(dDown);
             }
             if (direction === 'ArrowLeft') {
                 dLeft.style.transform = `scale(.95) translateX(20px)`;
-                dLeft.style.boxShadow = `0px 0px 10px 5px black inset`;
-                dLeft.style.transition = `.3s ease all`;
+                addBoxShadowAndTransition(dLeft);
             }
             if (direction === 'ArrowRight') {
                 dRight.style.transform = `scale(.95) translateX(-20px)`;
-                dRight.style.boxShadow = `0px 0px 10px 5px black inset`;
-                dRight.style.transition = `.3s ease all`;
+                addBoxShadowAndTransition(dRight);
             }
         });
     }
-}
-
-)()
+    return {
+        DOMStrings,
+        keyBoardOnView,
+        animateToHomePage,
+        animateToRetry,
+        animateToLevelZero,
+        animateToLevelOne,
+        animateToLevelTwo,
+        animateToLevelThree,
+        animateToLevelFour,
+        animateToLevelFive,
+        newSequence
+    };
+})()
 const elementIDs = {
     leftButton: 'left',
-    rightButton: 'right'
+    rightButton: 'right',
+    upButton: 'up',
+    downButton: 'down'
 }
 
 const elementClasses = {
     keyboardElement: 'contents'
 }
 
-const stylingClasses = {
-    translateMedium: 'translate-medium'
-};
 
 const getElement = (elementIdentifier, elementString) => document.querySelector(`${elementIdentifier}${elementString}`);
 const getIdElement = elementString => getElement('#', elementString);
 const getClassElement = elementString => getElement('.', elementString);
 
 const buttons = document.querySelectorAll('.btns');
-const dUp = document.querySelector('#up')
-const dLeft = getIdElement(elementIDs.leftButton)
+const dUp = document.querySelector(`#${elementIDs.upButton}`)
+const dLeft = document.querySelector(`#${elementIDs.leftButton}`)
 const dRight = document.querySelector(`#${elementIDs.rightButton}`)
-const dDown = document.querySelector("#down")
+const dDown = document.querySelector(`#${elementIDs.downButton}`)
 const headings = document.querySelector('main_heading');
 const keyBoard = getClassElement(elementClasses.keyboardElement);
 const startButton = document.querySelector('.main');
-startButton.style.transform = `translateY(200px)`
-startButton.classList.add(stylingClasses.translateMedium);
 
 
-// TIMER
-let timer;
-const timerElement = document.querySelector(`timer`);
-let seconds = 0;
-// LIVES 
-let lives = 3; // 3 LIVES by Default
-const heart = document.querySelector(`.heart`);
-heart.style.display = `none`;
-const defaultLife = document.querySelector(`.default`);
-// LEVEL ARRAY
-const levelArray = [`LEVEL 1 `, `LEVEL 2 `, `LEVEL 3 `, `LEVEL 4 `, `LEVEL 5 `];
-let bool = false;
-const buttonPress = () => {
-    const audio = new Audio("GameAudio/buttonPress.wav");
-    audio.currentTime = 0;
-    audio.play();
-}
 
-const setComplete = () => {
-    const audio = new Audio("GameAudio/setComplete.wav");
-    audio.currentTime = 0;
-    audio.play();
-}
-const invalidInput = () => {
-    const audio = new Audio('GameAudio/invalid.flac')
-    audio.currentTime = 0;
-    audio.play();
-}
-const clickSoundGreen = () => {
-    const audio = new Audio('GameAudio/greenSound2.mp3');
-    audio.currentTime = 0;
-    audio.play();
-}
-const clickSoundRed = () => {
-    const audio = new Audio('GameAudio/MPOP.wav')
-    audio.currentTime = 0;
-    audio.play();
-}
-// KeyPress Event :
-
-const sequenceDisplay = document.querySelector('.keyDisplay');
-
-// Random KeyGenerator :
-const span = document.querySelectorAll('.arrows');
 const newSequence = () => {
     let i = 10;
     while (i--) {
@@ -374,8 +391,6 @@ const newSequence = () => {
         } i++;
     })
 }
-let levelNumber = 0;
-let sets = 0;
 const entireLogic = () => {
     const spanCount = span.length;
     let index = 0;
@@ -474,21 +489,21 @@ const entireLogic = () => {
             }
             index = 0;
             span.forEach(element => {
-                element.style.fontSize = `80px`;
+                element.classList.add('font-size-80');
             })
         }
     })
 }
 
 // Timer Style :
-timerElement.style.fontSize = `45px`
-timerElement.style.display = `none`;
-sequenceDisplay.style.display = `none`
-keyBoard.style.display = `none`;
+timerElement.classList.add('font-size-45');
+timerElement.classList.add('.display-hidden');
+sequenceDisplay.classList.add('.display-hidden');
+keyBoard.classList.add('.display-hidden');
 const levelOne = () => {
     lives++;
-    sequenceDisplay.display = `none`;
-    keyBoard.style.display = `none`;
+    sequenceDisplay.display = `hidden`;
+    keyBoard.style.display = `hidden`;
     startButton.style.transform = `translateY(200px)`;
     startButton.style.fontSize = `100px`;
 }

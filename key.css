@@ -92,7 +92,7 @@ table {
     letter-spacing: 15px;
 }
 
-.arrows{
+.arrow-element{
     text-align: center;
     text-shadow: 1px 1px brown,-1px 1px brown,1px -1px  brown,-1px -1px brown;
 }
@@ -149,12 +149,69 @@ table {
     height: 30px;
     width: 30px;
 }
-.default{
+.default_lives{
     font-size: 35px;
     transform: translateX(-800%) translateY(-95%);
 }
-
 .transform-translate-y-200px {
     transform: translateY(200px);
 }
+/* Visibility of content */
+.display-hidden{
+    visibility:hidden;
+}
+.display-visible{
+    visibility: visible;
+}
 
+.transformKeyBoardOnView{
+    box-shadow:  0px 0px 10px 5px black inset;
+    transition :.3s ease all;
+}
+/* Text-Colors */
+.color-white{
+    color : white;
+}
+.color-darkslategray{
+    color: darkslategray;
+}
+.color-black{
+    color : black;
+}
+/* Button Borders */
+.border-retry{
+    border : brown
+}
+.border-home{
+    border : 5px solid darkred;
+}
+.border-start{
+    border: 5px solid lightgreen;
+}
+
+.timer-boxShadow{
+    box-shadow: 0px 0px 4px 3px darkgray;
+}
+/* Background Colors */
+.bg-red{
+    background-color: red;
+}
+.bg-color-chocolate{
+    background-color: chocolate;
+}
+.bg-whitesmoke{
+    background-color: whitesmoke;
+}
+.bg-lightgreen{
+    background-color: lightgreen;
+}
+/* Font-Sizes */
+.font-size-45{
+    font-size: 45px;
+}
+.font-size-80{
+    font-size: 80px;
+}
+.font-size-100{
+    font-size: 100px;
+}
