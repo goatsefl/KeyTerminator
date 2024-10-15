@@ -19,11 +19,11 @@ const gameModule = (function () {
             getGameAudio: () => new Audio("GameAudio/gameBackgroundMusic.mp3"),
             getClickAudio: () => new Audio("GameAudio/buttonPress.wav"),
             getStartSound: () => new Audio("GameAudio/start_sound.wav"),
-            getKeyboardSounds: () => ({
+            getKeyboardSounds: {
                 getInvalidAudio: () => new Audio('GameAudio/invalid.flac'),
                 getGreenAudio: () => new Audio()(`GameAudio/greenSound2.mp3`),
                 getRedAudio: () => new Audio("GameAudio/MPOP.wav")
-            })
+            }
         },
     });
     let gameState = getInitialGameState();
@@ -67,6 +67,7 @@ const gameModule = (function () {
         gameState = getInitialGameState();
     }
     function getGameLife() {
+        // for debugging purpose, Added getGameLife().
         const gameLife = gameState.lives;
         return gameLife;
     }
@@ -88,10 +89,9 @@ const gameModule = (function () {
             gameState.gameAudio.getGameAudio(),
             gameState.gameAudio.getStartSound(),
             gameState.gameAudio.getClickAudio(),
-            gameState.gameAudio.getKeyboardSounds(),
-            keyboardSounds.getInvalidAudio(),
-            keyboardSounds.getGreenAudio(),
-            keyboardSounds.getRedAudio()
+            gameState.gameAudio.getKeyboardSounds.getInvalidAudio(),
+            gameState.gameAudio.getKeyboardSounds.getGreenAudio(),
+            gameState.gameAudio.getKeyboardSounds.getRedAudio()
         ];
         sounds.forEach(audio => audio.pause());
     }
@@ -101,10 +101,9 @@ const gameModule = (function () {
             gameState.gameAudio.getGameAudio(),
             gameState.gameAudio.getStartSound(),
             gameState.gameAudio.getClickAudio(),
-            gameState.gameAudio.getKeyboardSounds(),
-            keyboardSounds.getInvalidAudio(),
-            keyboardSounds.getGreenAudio(),
-            keyboardSounds.getRedAudio()
+            gameState.gameAudio.getKeyboardSounds.getInvalidAudio(),
+            gameState.gameAudio.getKeyboardSounds.getGreenAudio(),
+            gameState.gameAudio.getKeyboardSounds.getRedAudio()
         ];
         sounds.forEach(audio => {
             audio.currentTime = 0;
@@ -175,8 +174,13 @@ const viewModule = (function () {
     function StopTimer() {
         clearInterval(timer);
     }
-
-    // Level timer
+    const elementIDs = {
+        leftButton: 'left',
+        rightButton: 'right',
+        upButton: 'up',
+        downButton: 'down'
+    }
+    //  Timer Object
     const timerElement = document.querySelector(`timer`);
     // Default Lives 
     const defaultLife = document.querySelector(`.default_lives`);
@@ -190,8 +194,9 @@ const viewModule = (function () {
     const dRight = document.querySelector(`#${elementIDs.rightButton}`)
     const dDown = document.querySelector(`#${elementIDs.downButton}`)
     const headings = document.querySelector('main_heading');
-    const keyBoard = getClassElement(elementClasses.keyboardElement);
+    const keyBoard = getClassElement('.contents');
     const startButton = document.querySelector('.main');
+
     const DOMStrings = {
         container: 'container',
         mainHeading: 'main_heading',
@@ -216,10 +221,10 @@ const viewModule = (function () {
                 arr.push("&rarr;");
             }
             else if (random <= .75) {
-                arr.push("&larr;");
+                arr.push("&darr;");
             }
             else {
-                arr.push("&darr;");
+                arr.push("&larr;");
             }
         }
         span.forEach((item, i) => {
@@ -338,59 +343,6 @@ const viewModule = (function () {
         newSequence
     };
 })()
-const elementIDs = {
-    leftButton: 'left',
-    rightButton: 'right',
-    upButton: 'up',
-    downButton: 'down'
-}
-
-const elementClasses = {
-    keyboardElement: 'contents'
-}
-
-
-const getElement = (elementIdentifier, elementString) => document.querySelector(`${elementIdentifier}${elementString}`);
-const getIdElement = elementString => getElement('#', elementString);
-const getClassElement = elementString => getElement('.', elementString);
-
-const buttons = document.querySelectorAll('.btns');
-const dUp = document.querySelector(`#${elementIDs.upButton}`)
-const dLeft = document.querySelector(`#${elementIDs.leftButton}`)
-const dRight = document.querySelector(`#${elementIDs.rightButton}`)
-const dDown = document.querySelector(`#${elementIDs.downButton}`)
-const headings = document.querySelector('main_heading');
-const keyBoard = getClassElement(elementClasses.keyboardElement);
-const startButton = document.querySelector('.main');
-
-
-
-const newSequence = () => {
-    let i = 10;
-    while (i--) {
-        const random = Math.random();
-        if (random <= .25) {
-            arr.push("&uarr;");
-        }
-        else if (random <= .50) {
-            arr.push("&rarr;");
-        }
-        else if (random <= .75) {
-            arr.push("&rarr;");
-        }
-        else {
-            arr.push("&darr;");
-        }
-    }
-    span.forEach((item, i) => {
-        item.innerHTML = arr[i];
-        if (Math.random() <= Math.random()) {
-            item.style.color = 'green';
-        } else {
-            item.style.color = 'red';
-        } i++;
-    })
-}
 const entireLogic = () => {
     const spanCount = span.length;
     let index = 0;
@@ -434,11 +386,6 @@ const entireLogic = () => {
             console.log(lives);
             defaultLife.textContent = `x ${lives}`
             invalidInput();
-            if (!lives) {
-                span.length = 0;
-                index = 0;
-                restart();
-            }
         }
         // Gray Out Logic
         else if (greenUp) {
@@ -497,16 +444,9 @@ const entireLogic = () => {
 
 // Timer Style :
 timerElement.classList.add('font-size-45');
-timerElement.classList.add('.display-hidden');
-sequenceDisplay.classList.add('.display-hidden');
-keyBoard.classList.add('.display-hidden');
-const levelOne = () => {
-    lives++;
-    sequenceDisplay.display = `hidden`;
-    keyBoard.style.display = `hidden`;
-    startButton.style.transform = `translateY(200px)`;
-    startButton.style.fontSize = `100px`;
-}
+timerElement.classList.add('.display-visible');
+sequenceDisplay.classList.add('.display-visible');
+keyBoard.classList.add('.display-visible');
 
 startButton.addEventListener('click', () => {
     buttonPress()
