@@ -234,6 +234,15 @@ const viewModule = (function () {
         randomKeyArrows: '.arrow-element',
         keyboardContents: '.contents'
     }
+    const resetArrowStyles = () => {
+        [document.querySelector(DOMStrings.elementIDs.upButton),
+        document.querySelector(DOMStrings.elementIDs.downButton),
+        document.querySelector(DOMStrings.elementIDs.leftButton),
+        document.querySelector(DOMStrings.elementIDs.rightButtonButton)].forEach(element => {
+            element.style.transform = '';
+            element.style.boxShadow = '';
+        })
+    }
     function hideDisplayForRetry() {
         document.querySelectorAll(DOMStrings.randomKeyArrows).forEach(element => {
             element.classList.add('display-hidden');
@@ -289,76 +298,47 @@ const viewModule = (function () {
     function animateToLevelZero() {
         document.querySelector(DOMStrings.defaultLives).textContent = `  x ${gameState.lives}`;
         document.querySelector(DOMStrings.heart).classList.add('display-visible');
-        document.querySelector(DOMStrings.timerDisplay).classList.add('display-visible');
-        document.querySelector(DOMStrings.mainButton).classList.add('font-size-45');
-        document.querySelector(DOMStrings.timerDisplay).classList.add('timer-boxShadow');
+        document.querySelector(DOMStrings.timerDisplay).classList.add('display-visible', 'timer-boxShadow');
+        document.querySelector(DOMStrings.mainButton).classList.add('font-size-45', 'bg-red', 'color-white', 'border-home', 'transform-for-level-zero');
         document.querySelector(DOMStrings.displaySequence).classList.add('display-visible');
         document.querySelector(DOMStrings.keyboardContents).classList.add('display-visible');
         document.querySelector(DOMStrings.mainButton).textContent = `HOME`;
-        startButton.style.transform = `translateX(450%) translateY(-250px)`;
-        document.querySelector(DOMStrings.mainButton).classList.add('bg-red');
-        document.querySelector(DOMStrings.mainButton).classList.add('color-white');
-        document.querySelector(DOMStrings.mainButton).classList.add('border-home');
         document.body.classList.add('bg-whitesmoke')
         document.querySelector(DOMStrings.mainHeading).textContent = `DEMO LEVEL`;
         document.querySelector(DOMStrings.mainHeading).classList.add('color-darkslategray')
         StartTimer();
     }
-    const animateToRetry = () => {
+    function animateToRetry() {
         StopTimer();
         hideDisplayForRetry();
-        document.querySelector(DOMStrings.mainButton).classList.add('font-size-80');
         document.querySelector(DOMStrings.mainButton).textContent = `RETRY`;
+        document.querySelector(DOMStrings.mainButton).classList.add('font-size-80', 'transform-translate-y-200px', 'bg-color-chocolate', 'color-white', 'border-retry');
         document.body.classList.add('bg-lightgreen');
-        document.querySelector(DOMStrings.mainButton).classList.add('transform-translate-y-200px')
-        document.querySelector(DOMStrings.mainButton).classList.add('bg-color-chocolate');
-        document.querySelector(DOMStrings.mainButton).classList.add('color-white')
         document.querySelector(DOMStrings.mainHeading).classList.add('color-black');
-        document.querySelector(DOMStrings.mainButton).classList.add('border-retry');
-        // document.querySelector(DOMStrings.defaultLives).classList.add('display-hidden');
-        // document.querySelector(DOMStrings.heart).classList.add('display-hidden');
-        // document.querySelector(DOMStrings.timerDisplay).classList.add('display-hidden');
-        // document.querySelector(DOMStrings.mainHeading).classList.add('display-hidden');
-        // document.querySelector(DOMStrings.displaySequence).classList.add('display-hidden');
-        // document.querySelector(DOMStrings.keyboardContents).classList.add('display-hidden');
-        // span.forEach(element => {
-        //     element.classList.add('display-hidden');
-        // })
     }
-    const animateToHomePage = () => {
+    function animateToHomePage() {
         StopTimer();
         hideDisplayForHome();
         document.querySelector(DOMStrings.mainHeading).innerText = `KEY FOCUS`;
         document.querySelector(DOMStrings.mainHeading).classList.add('color-black');
-        document.querySelector(DOMStrings.mainButton).classList.add('font-size-100');
         document.querySelector(DOMStrings.mainButton).textContent = `START`;
         document.body.classList.add('bg-lightgreen');
-        document.querySelector(DOMStrings.mainButton).classList.add('transform-translate-y-200px');
-        document.querySelector(DOMStrings.mainButton).classList.add('color-black');
-        document.querySelector(DOMStrings.mainButton).classList.add('bg-lightgreen');
-        document.querySelector(DOMStrings.mainButton).classList.add('border-start');
-        // document.querySelector(DOMStrings.defaultLives).classList.add('display-hidden');
-        // document.querySelector(DOMStrings.heart).classList.add('display-hidden');
-        // document.querySelector(DOMStrings.timerDisplay).classList.add('display-hidden');
-        // document.querySelector(DOMStrings.displaySequence).classList.add('display-hidden');
-        // document.querySelector(DOMStrings.keyboardContents).classList.add('display-hidden');
-        // span.forEach(element => {
-        //     element.classList.add('display-hidden');
-        // })
+        document.querySelector(DOMStrings.mainButton).classList.add('font-size-100', 'transform-translate-y-200px', 'color-black', 'bg-lightgreen', 'border-start');
     }
-    const animateToLevelOne = () => {
+
+    function animateToLevelOne() {
 
     }
-    const animateToLevelTwo = () => {
+    function animateToLevelTwo() {
 
     }
-    const animateToLevelThree = () => {
+    function animateToLevelThree() {
 
     }
-    const animateToLevelFour = () => {
+    function animateToLevelFour() {
 
     }
-    const animateToLevelFive = () => {
+    function animateToLevelFive() {
 
     }
     const keyBoardOnView = () => {
@@ -387,6 +367,7 @@ const viewModule = (function () {
     }
     return {
         DOMStrings,
+        resetArrowStyles,
         keyBoardOnView,
         animateToHomePage,
         animateToRetry,
@@ -429,89 +410,65 @@ function logic() {
 
 const controller = (function (game, view) {
 
+
     const entireLogic = () => {
         const arrowCount = document.querySelector(viewModule.DOMStrings.randomKeyArrows).length;
         let index = 0;
         // Key Interactions Logic : 
         addEventListener('keyup', (e) => {
-            dUp.style.transform = ``;
-            dRight.style.transform = ``;
-            dDown.style.transform = ``;
-            dLeft.style.transform = ``;
-            dUp.style.boxShadow = ``;
-            dRight.style.boxShadow = ``;
-            dDown.style.boxShadow = ``;
-            dLeft.style.boxShadow = ``;
+            view.resetArrowStyles();
             const keyPress = e.key;
             const currentSpan = document.querySelector(viewModule.DOMStrings.randomKeyArrows)[index];
             const currentSpanStyles = () => {
-                currentSpan.classList.add('color-gray');
-                currentSpan.classList.add('font-size-70');
-                currentSpan.classList.add('arrow-transition-to-gray');
+                currentSpan.classList.add('color-gray', 'arrow-transition-to-gray', 'font-size-70');
             }
+            const greenCurrentSpanColor = () => { currentSpan.style.color = 'green' }
+            const redCurrentSpanColor = () => { currentSpan.style.color = 'red' }
+
             // Successful Sounds : 
-            const greenUp = keyPress === `ArrowUp` && currentSpan.innerHTML === `↑` && currentSpan.style.color === `green`;
-            const greenDown = keyPress === `ArrowDown` && currentSpan.innerHTML === `↓` && currentSpan.style.color === `green`;
-            const greenLeft = keyPress === `ArrowLeft` && currentSpan.innerHTML === `←` && currentSpan.style.color === `green`;
-            const greenRight = keyPress === `ArrowRight` && currentSpan.innerHTML === `→` && currentSpan.style.color === `green`;
-            const redUp = keyPress === `ArrowDown` && currentSpan.innerHTML === `↑` && currentSpan.style.color === `red`;
-            const redDown = keyPress === `ArrowUp` && currentSpan.innerHTML === `↓` && currentSpan.style.color === `red`;
-            const redLeft = keyPress === `ArrowRight` && currentSpan.innerHTML === `←` && currentSpan.style.color === `red`;
-            const redRight = keyPress === `ArrowLeft` && currentSpan.innerHTML === `→` && currentSpan.style.color === `red`;
+            const successfulGreenSounds = {
+                ArrowDown: currentSpan.innerHTML === `↑` && greenCurrentSpanColor(),
+                ArrowUp: currentSpan.innerHTML === `↓` && greenCurrentSpanColor(),
+                ArrowRight: currentSpan.innerHTML === `←` && greenCurrentSpanColor(),
+                ArrowLeft: currentSpan.innerHTML === `→` && greenCurrentSpanColor()
+            };
+            const successfulRedSounds = {
+                ArrowDown: currentSpan.innerHTML === `↑` && redCurrentSpanColor(),
+                ArrowUp: currentSpan.innerHTML === `↓` && redCurrentSpanColor(),
+                ArrowRight: currentSpan.innerHTML === `←` && redCurrentSpanColor(),
+                ArrowLeft: currentSpan.innerHTML === `→` && redCurrentSpanColor()
+            };
             // UnSuccessful Sounds :
-            const noTgreenUp = keyPress === `ArrowUp` && (currentSpan.innerHTML === `↓` || currentSpan.innerHTML === `→` || currentSpan.innerHTML === `←`) && currentSpan.style.color === `green`;
-            const noTgreenDown = keyPress === `ArrowDown` && (currentSpan.innerHTML === `→` || currentSpan.innerHTML === `↑` || currentSpan.innerHTML === `←`) && currentSpan.style.color === `green`;
-            const noTgreenLeft = keyPress === `ArrowLeft` && (currentSpan.innerHTML === `↓` || currentSpan.innerHTML === `↑` || currentSpan.innerHTML === `→`) && currentSpan.style.color === `green`;
-            const noTgreenRight = keyPress === `ArrowRight` && (currentSpan.innerHTML === `↓` || currentSpan.innerHTML === `↑` || currentSpan.innerHTML === `←`) && currentSpan.style.color === `green`;
-            const noTredUp = keyPress === `ArrowDown` && (currentSpan.innerHTML === `↓` || currentSpan.innerHTML === `→` || currentSpan.innerHTML === `←`) && currentSpan.style.color === `red`;
-            const noTredDown = keyPress === `ArrowUp` && (currentSpan.innerHTML === `→` || currentSpan.innerHTML === `↑` || currentSpan.innerHTML === `←`) && currentSpan.style.color === `red`;
-            const noTredLeft = keyPress === `ArrowRight` && (currentSpan.innerHTML === `↓` || currentSpan.innerHTML === `↑` || currentSpan.innerHTML === `→`) && currentSpan.style.color === `red`;
-            const noTredRight = keyPress === `ArrowLeft` && (currentSpan.innerHTML === `↓` || currentSpan.innerHTML === `↑` || currentSpan.innerHTML === `←`) && currentSpan.style.color === `red`;
-            if (noTgreenUp || noTgreenDown || noTgreenLeft || noTgreenRight || noTredUp || noTredDown || noTredRight || noTredLeft) {
+
+            const unSuccessfulGreenSound = {
+                ArrowUp: (currentSpan.innerHTML === `↓` || currentSpan.innerHTML === `→` || currentSpan.innerHTML === `←`) && greenCurrentSpanColor(),
+                ArrowDown: (currentSpan.innerHTML === `→` || currentSpan.innerHTML === `↑` || currentSpan.innerHTML === `←`) && greenCurrentSpanColor(),
+                ArrowLeft: (currentSpan.innerHTML === `↓` || currentSpan.innerHTML === `↑` || currentSpan.innerHTML === `→`) && greenCurrentSpanColor(),
+                ArrowRight: (currentSpan.innerHTML === `↓` || currentSpan.innerHTML === `↑` || currentSpan.innerHTML === `←`) && greenCurrentSpanColor()
+            }
+            const unSuccessfulRedSounds = {
+                ArrowDown: (currentSpan.innerHTML === `↓` || currentSpan.innerHTML === `→` || currentSpan.innerHTML === `←`) && redCurrentSpanColor(),
+                ArrowUp: (currentSpan.innerHTML === `→` || currentSpan.innerHTML === `↑` || currentSpan.innerHTML === `←`) && redCurrentSpanColor(),
+                ArrowRight: (currentSpan.innerHTML === `↓` || currentSpan.innerHTML === `↑` || currentSpan.innerHTML === `→`) && redCurrentSpanColor(),
+                ArrowLeft: (currentSpan.innerHTML === `↓` || currentSpan.innerHTML === `↑` || currentSpan.innerHTML === `←`) && redCurrentSpanColor()
+            }
+
+            // Gray Out Logic
+
+            if (successfulGreenSounds[keyPress]) {
+                currentSpanStyles();
+                game.playSuccessfulGreenArrowSound();
+                index++;
+            }
+            else if (successfulRedSounds[keyPress]) {
+                currentSpanStyles();
+                game.playSuccessfulRedArrowSound();
+                index++;
+            }
+            else if (unSuccessfulGreenSound[keyPress] || unSuccessfulRedSounds[keyPress]) {
                 invalidInput();
                 game.decrementGameLife();
                 document.querySelector(view.DOMStrings.currentLives).textContent = `x ${view.DOMStrings.currentLives}`
-            }
-            // Gray Out Logic
-            else if (greenUp) {
-                currentSpanStyles();
-                game.playSuccessfulGreenArrowSound();
-                index++;
-            }
-            else if (greenDown) {
-                currentSpanStyles();
-                game.playSuccessfulGreenArrowSound();
-                index++;
-            }
-            else if (greenLeft) {
-                currentSpanStyles();
-                game.playSuccessfulGreenArrowSound();
-                index++;
-            }
-            else if (greenRight) {
-                currentSpanStyles();
-                game.playSuccessfulGreenArrowSound();
-                index++;
-            }
-            else if (redUp) {
-                currentSpanStyles();
-                game.playSuccessfulRedArrowSound();
-                index++;
-            }
-            else if (redDown) {
-                currentSpanStyles();
-                game.playSuccessfulRedArrowSound();
-                index++;
-            }
-            else if (redLeft) {
-                currentSpanStyles();
-                game.playSuccessfulRedArrowSound();
-                index++;
-            }
-            else if (redRight) {
-                currentSpanStyles();
-                game.playSuccessfulRedArrowSound();
-                index++;
             }
             if (index >= arrowCount) {
                 game.singleSetCompleteSound();
