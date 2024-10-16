@@ -17,41 +17,41 @@ const gameModule = (function () {
         isGameOver: false,
         sound: true,
         gameAudio: {
-            getGameAudio: () => new Audio("GameAudio/gameBackgroundMusic.mp3"),
-            getClickAudio: () => new Audio("GameAudio/buttonPress.wav"),
-            getStartSound: () => new Audio("GameAudio/start_sound.wav"),
-            getSetCompleteSound: () => Audio("GameAudio/setComplete.wav"),
+            getGameAudio: new Audio("GameAudio/gameBackggameState.gameAudio.getStartSound.play();roundMusic.mp3"),
+            getClickAudio: new Audio("GameAudio/buttonPress.wav"),
+            getStartSound: new Audio("GameAudio/start_sound.wav"),
+            getSetCompleteSound: new Audio("GameAudio/setComplete.wav"),
             getKeyboardSounds: {
-                getInvalidAudio: () => new Audio('GameAudio/invalid.flac'),
-                getGreenAudio: () => new Audio()(`GameAudio/greenSound2.mp3`),
-                getRedAudio: () => new Audio("GameAudio/MPOP.wav")
+                getInvalidAudio: new Audio('GameAudio/invalid.flac'),
+                getGreenAudio: new Audio()(`GameAudio/greenSound2.mp3`),
+                getRedAudio: new Audio("GameAudio/MPOP.wav")
             }
         },
     });
     let gameState = getInitialGameState();
-    function startGame() {
-        gameState.gameAudio.getClickAudio().play();
+    function gameStart() {
+        gameState.gameAudio.getClickAudio.play();
         gameState.isStart = true;
         gameState.currentLevel = 0;
+        gameState.gameAudio.getClickAudio.addEventListener('ended', () => {
+            gameState.gameAudio.getStartSound.play();
+        });
     }
     function gameOver() {
-        if ((!gameState.lives || !gameState.seconds) && !gameState.levelsInfo.currentLevel) {
-            resetGameState();
-        }
-        if ((!gameState.lives || !gameState.seconds) && gameState.levelsInfo.currentLevel > 0) {
-            resetGameLives();
-            resetGameTimer();
-        }
+        resetGameState();
     }
     function levelUp() {
         // Level 0 -> 5:
-        const currentLevel = gameState.levelsInfo.currentLevel;
         if (gameState.lives > 0 && gameState.seconds > 0) {
             resetGameLives();
             resetGameTimer();
             gameState.levelsInfo.currentLevel++;
             increaseSetValue();
         }
+    }
+    function gameRetry() {
+        resetGameLives;
+        resetGameTimer;
     }
     function increaseSetValue() {
         const getLevel = gameState.levelsInfo.currentLevel;
@@ -80,9 +80,7 @@ const gameModule = (function () {
         resetGameState();
     }
     function gameMusicPlay() {
-        const backgroundMusic = gameState.gameAudio.getGameAudio();
-        backgroundMusic.currentTime = 0;
-        backgroundMusic.play();
+        gameState.gameAudio.getGameAudio.play();
     }
     function gameMusicStop() {
         const backgroundMusic = gameState.gameAudio.getGameAudio();
@@ -91,22 +89,25 @@ const gameModule = (function () {
     function singleSetCompleteSound() {
         gameState.gameAudio.getSetCompleteSound().play();
     }
+    function playInvalidInputSound() {
+        gameState.gameAudio.getKeyboardSounds.getInvalidAudio.play();
+    }
     function playSuccessfulGreenArrowSound() {
-        gameState.gameAudio.getKeyboardSounds.getGreenAudio().play();
+        gameState.gameAudio.getKeyboardSounds.getGreenAudio.play();
     }
     function playSuccessfulRedArrowSound() {
-        gameState.gameAudio.getKeyboardSounds.getRedAudio().play();
+        gameState.gameAudio.getKeyboardSounds.getRedAudio.play();
     }
     function muteAudio() {
         gameState.sound = false;
         [
-            gameState.gameAudio.getGameAudio(),
-            gameState.gameAudio.getStartSound(),
-            gameState.gameAudio.getClickAudio(),
-            gameState.gameAudio.getSetCompleteSound(),
-            gameState.gameAudio.getKeyboardSounds.getInvalidAudio(),
-            gameState.gameAudio.getKeyboardSounds.getGreenAudio(),
-            gameState.gameAudio.getKeyboardSounds.getRedAudio()
+            gameState.gameAudio.getGameAudio,
+            gameState.gameAudio.getStartSound,
+            gameState.gameAudio.getClickAudio,
+            gameState.gameAudio.getSetCompleteSound,
+            gameState.gameAudio.getKeyboardSounds.getInvalidAudio,
+            gameState.gameAudio.getKeyboardSounds.getGreenAudio,
+            gameState.gameAudio.getKeyboardSounds.getRedAudio
 
         ].forEach(audio => audio.pause());
 
@@ -114,13 +115,13 @@ const gameModule = (function () {
     function unMuteAudio() {
         gameState.sound = true;
         [
-            gameState.gameAudio.getGameAudio(),
-            gameState.gameAudio.getStartSound(),
-            gameState.gameAudio.getClickAudio(),
-            gameState.gameAudio.getSetCompleteSound(),
-            gameState.gameAudio.getKeyboardSounds.getInvalidAudio(),
-            gameState.gameAudio.getKeyboardSounds.getGreenAudio(),
-            gameState.gameAudio.getKeyboardSounds.getRedAudio()
+            gameState.gameAudio.getGameAudio,
+            gameState.gameAudio.getStartSound,
+            gameState.gameAudio.getClickAudio,
+            gameState.gameAudio.getSetCompleteSound,
+            gameState.gameAudio.getKeyboardSounds.getInvalidAudio,
+            gameState.gameAudio.getKeyboardSounds.getGreenAudio,
+            gameState.gameAudio.getKeyboardSounds.getRedAudio
 
         ].forEach(audio => { audio.currentTime = 0; audio.play() });
     }
@@ -130,9 +131,13 @@ const gameModule = (function () {
     function printGameState() {
         console.log(gameState);
     }
+    function getGameState() {
+        return gameState;
+    }
 
     return {
-        startGame,
+        gameRetry,
+        gameStart,
         gameOver,
         levelUp,
         increaseSetValue,
@@ -150,7 +155,9 @@ const gameModule = (function () {
         playSuccessfulGreenArrowSound,
         playSuccessfulRedArrowSound,
         singleSetCompleteSound,
-        getSetValue
+        getSetValue,
+        getGameState,
+        playInvalidInputSound,
     };
     // I. create a game state object (ensure it's a deep copy of initialGameState)
     // II. create utility methods to manipulate the game state object
@@ -176,45 +183,20 @@ const gameModule = (function () {
 // Button Animation Logic :
 
 const viewModule = (function () {
-    // Global Timer Variable :
-    let timer;
+    let secondsInterval;
     function StartTimer() {
-        timer = setInterval(() => {
-            gameState.seconds = gameState.seconds - 1;
-            timerElement.textContent = `${gameState.seconds}`;
+        secondsInterval = setInterval(() => {
+            gameState.seconds -= 1;
+            DOMStrings.timerDisplay.textContent = `${gameState.seconds}`;
             if (gameState.seconds <= 0) {
-                clearInterval(timer);
-                const secondsReset = initialGameState.seconds;
-                gameState.seconds = secondsReset;
+                clearInterval(secondsInterval);
+                gameState.resetGameTimer();
             }
         }, 1000)
     }
     function StopTimer() {
-        clearInterval(timer);
+        clearInterval(secondsInterval);
     }
-    // const elementIDs = {
-    //     leftButton: 'left',
-    //     rightButton: 'right',
-    //     upButton: 'up',
-    //     downButton: 'down'
-    // }
-    // //  Timer Object
-    // const timerElement = document.querySelector(`.timer`);
-    // // Default Lives 
-    // const defaultLife = document.querySelector(`.default_lives`);
-    // // Displays all the random arrow-elements
-    // const sequenceDisplay = document.querySelector('.keyDisplay');
-    // const span = document.querySelectorAll('.arrow-element');
-    // const heart = document.querySelector(`.heart`);
-    // const buttons = document.querySelectorAll('.btns');
-    // const dUp = document.querySelector(`#${elementIDs.upButton}`)
-    // const dLeft = document.querySelector(`#${elementIDs.leftButton}`)
-    // const dRight = document.querySelector(`#${elementIDs.rightButton}`)
-    // const dDown = document.querySelector(`#${elementIDs.downButton}`)
-    // const headings = document.querySelector('.main_heading');
-    // const keyBoard = getClassElement('.contents');
-    // const startButton = document.querySelector('.main');
-
     const DOMStrings = {
         elementIDs: {
             leftButton: '#left',
@@ -366,6 +348,8 @@ const viewModule = (function () {
         });
     }
     return {
+        StartTimer,
+        StopTimer,
         DOMStrings,
         resetArrowStyles,
         keyBoardOnView,
@@ -381,34 +365,14 @@ const viewModule = (function () {
     };
 })()
 
-// Timer Style :
-timerElement.classList.add('font-size-45');
-timerElement.classList.add('.display-visible');
-sequenceDisplay.classList.add('.display-visible');
-keyBoard.classList.add('.display-visible');
-
-startButton.addEventListener('click', () => {
-    buttonPress()
-    bool = !bool;
-    console.log(bool);
-    if (bool) {
-        startAnimation();
-    } else {
-        homeAnimation();
-    }
-})
-
-function logic() {
-    // ...
-    // ...
-    gameModule.incrementGameLevel();
-}
-
-// gameModule
-// gameController
-
-
 const controller = (function (game, view) {
+
+    function initGame() {
+        document.querySelector(view.DOMStrings.mainButton).addEventListener('click', () => {
+            view.animateToLevelZero();
+            game.gameStart();
+        })
+    }
 
 
     const entireLogic = () => {
@@ -425,33 +389,29 @@ const controller = (function (game, view) {
             const greenCurrentSpanColor = () => { currentSpan.style.color = 'green' }
             const redCurrentSpanColor = () => { currentSpan.style.color = 'red' }
 
+            const allDirections = {
+                directionUp: currentSpan.innerHTML === `↑`,
+                directionDown: currentSpan.innerHTML === `↓`,
+                directionLeft: currentSpan.innerHTML === `←`,
+                directionRight: currentSpan.innerHTML === `→`,
+            }
             // Successful Sounds : 
             const successfulGreenSounds = {
-                ArrowDown: currentSpan.innerHTML === `↑` && greenCurrentSpanColor(),
-                ArrowUp: currentSpan.innerHTML === `↓` && greenCurrentSpanColor(),
-                ArrowRight: currentSpan.innerHTML === `←` && greenCurrentSpanColor(),
-                ArrowLeft: currentSpan.innerHTML === `→` && greenCurrentSpanColor()
+                ArrowUp: allDirections.directionUp && greenCurrentSpanColor(),
+                ArrowDown: allDirections.directionDown && greenCurrentSpanColor(),
+                ArrowLeft: allDirections.directionLeft && greenCurrentSpanColor(),
+                ArrowRight: allDirections.directionRight && greenCurrentSpanColor()
             };
             const successfulRedSounds = {
-                ArrowDown: currentSpan.innerHTML === `↑` && redCurrentSpanColor(),
-                ArrowUp: currentSpan.innerHTML === `↓` && redCurrentSpanColor(),
-                ArrowRight: currentSpan.innerHTML === `←` && redCurrentSpanColor(),
-                ArrowLeft: currentSpan.innerHTML === `→` && redCurrentSpanColor()
+                ArrowUp: allDirections.directionDown && redCurrentSpanColor(),
+                ArrowDown: allDirections.directionUp && redCurrentSpanColor(),
+                ArrowLeft: allDirections.directionLeft && redCurrentSpanColor(),
+                ArrowRight: allDirections.directionRight && redCurrentSpanColor()
             };
             // UnSuccessful Sounds :
 
-            const unSuccessfulGreenSound = {
-                ArrowUp: (currentSpan.innerHTML === `↓` || currentSpan.innerHTML === `→` || currentSpan.innerHTML === `←`) && greenCurrentSpanColor(),
-                ArrowDown: (currentSpan.innerHTML === `→` || currentSpan.innerHTML === `↑` || currentSpan.innerHTML === `←`) && greenCurrentSpanColor(),
-                ArrowLeft: (currentSpan.innerHTML === `↓` || currentSpan.innerHTML === `↑` || currentSpan.innerHTML === `→`) && greenCurrentSpanColor(),
-                ArrowRight: (currentSpan.innerHTML === `↓` || currentSpan.innerHTML === `↑` || currentSpan.innerHTML === `←`) && greenCurrentSpanColor()
-            }
-            const unSuccessfulRedSounds = {
-                ArrowDown: (currentSpan.innerHTML === `↓` || currentSpan.innerHTML === `→` || currentSpan.innerHTML === `←`) && redCurrentSpanColor(),
-                ArrowUp: (currentSpan.innerHTML === `→` || currentSpan.innerHTML === `↑` || currentSpan.innerHTML === `←`) && redCurrentSpanColor(),
-                ArrowRight: (currentSpan.innerHTML === `↓` || currentSpan.innerHTML === `↑` || currentSpan.innerHTML === `→`) && redCurrentSpanColor(),
-                ArrowLeft: (currentSpan.innerHTML === `↓` || currentSpan.innerHTML === `↑` || currentSpan.innerHTML === `←`) && redCurrentSpanColor()
-            }
+            const unSuccessfulGreenSound = !successfulGreenSounds[keyPress];
+            const unSuccessfulRedSounds = !successfulRedSounds[keyPress];
 
             // Gray Out Logic
 
@@ -465,8 +425,8 @@ const controller = (function (game, view) {
                 game.playSuccessfulRedArrowSound();
                 index++;
             }
-            else if (unSuccessfulGreenSound[keyPress] || unSuccessfulRedSounds[keyPress]) {
-                invalidInput();
+            else if (unSuccessfulGreenSound || unSuccessfulRedSounds) {
+                game.playInvalidInputSound();
                 game.decrementGameLife();
                 document.querySelector(view.DOMStrings.currentLives).textContent = `x ${view.DOMStrings.currentLives}`
             }
@@ -476,7 +436,7 @@ const controller = (function (game, view) {
                     view.newSequence();
                     game.currentSetValue--;
                 }
-                index = 0;
+                index = 0; const currentLevel = gameState.levelsInfo.currentLevel;
                 document.querySelectorAll(game.DOMStrings.randomKeyArrows).forEach(element => {
                     element.classList.add('font-size-80');
                 })
