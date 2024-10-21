@@ -5,37 +5,89 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>KeyGenerationX</title>
 		<link rel="stylesheet" href="key.css" />
+		<script defer src="key.js"></script>
 	</head>
-	<body>
-		<div class="container">
-			<h1 class="main_heading">KEY FOCUS</h1>
-			<h2></h2>
-			<div class="lives">
-				<img src="Images/heart-svgrepo-com.svg" class="heart" />
-				<div class="default_lives"></div>
+	<body class="container">
+		<h1 class="game-title">KEY FOCUS</h1>
+		<div class="game-playing-view display-none">
+			<div class="flex-center">
+				<div class="game-metadata">
+					<div class="lives-container">
+						<img
+							width="40px"
+							class="heart-image"
+							src="Images/heart-svgrepo-com.svg"
+						/>
+						<span class="lives-indicator">LIVES</span>
+					</div>
+					<div class="home-and-timer-container flex-center-full">
+						<button class="home-btn">HOME</button>
+						<div class="timer-countdown flex-center-full">60</div>
+					</div>
+				</div>
 			</div>
-			<h6 class="timer"></h6>
-			<h4><button class="main">START</button></h4>
-			<h3 class="keyDisplay">
-				<span class="arrow-element"></span>
-				<span class="arrow-element"></span>
-				<span class="arrow-element"></span>
-				<span class="arrow-element"></span>
-				<span class="arrow-element"></span>
-				<span class="arrow-element"></span>
-				<span class="arrow-element"></span>
-				<span class="arrow-element"></span>
-				<span class="arrow-element"></span>
-				<span class="arrow-element"></span>
-			</h3>
-			<div class="contents">
-				<button class="btns" id="up">&uarr;</button><br />
-				<button class="btns" id="left">&larr;</button>
-				<button class="btns" id="down">&darr;</button>
-				<button class="btns" id="right">&rarr;</button>
+			<div class="key-sequence-container">
+				<div class="arrow-element"></div>
+				<div class="arrow-element"></div>
+				<div class="arrow-element"></div>
+				<div class="arrow-element"></div>
+				<div class="arrow-element"></div>
+				<div class="arrow-element"></div>
+				<div class="arrow-element"></div>
+				<div class="arrow-element"></div>
+				<div class="arrow-element"></div>
+				<div class="arrow-element"></div>
+			</div>
+			<div class="keyboard-buttons">
+				<div class="top-keys">
+					<button class="up-key">&uarr;</button>
+				</div>
+				<div class="bottom-keys">
+					<button class="left-key">&larr;</button>
+					<button class="down-key">&darr;</button>
+					<button class="right-key">&rarr;</button>
+				</div>
 			</div>
 		</div>
-		<script src="https://cdn.jsdelivr.net/npm/axios@1.6.7/dist/axios.min.js"></script>
-		<script src="key.js"></script>
+		<div class="game-home-view">
+			<button class="start-btn">START</button>
+		</div>
+		<div class="game-over-heading display-none">GAME OVER</div>
+		<button class="retry-btn display-none">RETRY</button>
+		<!-- <div class="container">
+			<h1 class="main_heading">KEY FOCUS</h1>
+			<div class="main_lives_container">
+				<div class="lives">
+					<img src="Images/heart-svgrepo-com.svg" class="heart" />
+					<div class="default_lives"></div>
+				</div>
+				<div class="main-container">
+					<button class="main">START</button>
+				</div>
+			</div>
+			<div class="timer"></div>
+			<div class="keyDisplay">
+				<span class="arrow-element"></span>
+				<span class="arrow-element"></span>
+				<span class="arrow-element"></span>
+				<span class="arrow-element"></span>
+				<span class="arrow-element"></span>
+				<span class="arrow-element"></span>
+				<span class="arrow-element"></span>
+				<span class="arrow-element"></span>
+				<span class="arrow-element"></span>
+				<span class="arrow-element"></span>
+			</div>
+			<div class="contents">
+				<div class="up_button">
+					<button class="btns" id="up">&uarr;</button>
+				</div>
+				<div class="bottom_keys">
+					<button class="btns" id="left">&larr;</button>
+					<button class="btns" id="down">&darr;</button>
+					<button class="btns" id="right">&rarr;</button>
+				</div>
+			</div>
+		</div> -->
 	</body>
 </html>

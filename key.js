@@ -1,40 +1,39 @@
-
 // GAME STATE INFO :
 // 0. Assign this IIFE's return value to a variable
 
-
-const gameModule = (function () {
+const gameModule = (() => {
     const getInitialGameState = () => ({
         lives: 3,
         seconds: 60,
         levelsInfo: {
             currentLevel: 0,
             totalLevels: 5,
-            setInfoList: [1, 2, 3, 6, 8, 11],
-            currentSetValue: 1
+            setInEachLevel: [1, 2, 3, 5, 8, 10],
+            currentSetValue: 1,
         },
         isStart: false,
         isGameOver: false,
         sound: true,
         gameAudio: {
-            getGameAudio: new Audio("GameAudio/gameBackggameState.gameAudio.getStartSound.play();roundMusic.mp3"),
-            getClickAudio: new Audio("GameAudio/buttonPress.wav"),
-            getStartSound: new Audio("GameAudio/start_sound.wav"),
-            getSetCompleteSound: new Audio("GameAudio/setComplete.wav"),
-            getKeyboardSounds: {
-                getInvalidAudio: new Audio('GameAudio/invalid.flac'),
-                getGreenAudio: new Audio()(`GameAudio/greenSound2.mp3`),
-                getRedAudio: new Audio("GameAudio/MPOP.wav")
-            }
+            gameBackgroundMusic: new Audio("GameAudio/gameBackgroundMusic.mp3"),
+            clickAudio: new Audio("GameAudio/buttonPress.wav"),
+            startSound: new Audio("GameAudio/start_sound.wav"),
+            setCompleteSound: new Audio("GameAudio/setComplete.wav"),
+            levelClearedSound: new Audio("GameAudio/levelCompleteSound.mp3"),
+            keyboardSounds: {
+                invalidAudio: new Audio("GameAudio/invalidSoundFinal.wav"),
+                greenAudio: new Audio(`GameAudio/greenSound2.mp3`),
+                redAudio: new Audio("GameAudio/MPOP.wav"),
+            },
         },
     });
-    let gameState = getInitialGameState();
+    var gameState = getInitialGameState();
     function gameStart() {
-        gameState.gameAudio.getClickAudio.play();
+        gameState.gameAudio.clickAudio.play();
         gameState.isStart = true;
         gameState.currentLevel = 0;
-        gameState.gameAudio.getClickAudio.addEventListener('ended', () => {
-            gameState.gameAudio.getStartSound.play();
+        gameState.gameAudio.clickAudio.addEventListener("ended", () => {
+            gameState.gameAudio.startSound.play();
         });
     }
     function gameOver() {
@@ -43,87 +42,99 @@ const gameModule = (function () {
     function levelUp() {
         // Level 0 -> 5:
         if (gameState.lives > 0 && gameState.seconds > 0) {
+            gameState.levelClearedSound.play();
             resetGameLives();
             resetGameTimer();
             gameState.levelsInfo.currentLevel++;
             increaseSetValue();
         }
     }
+    function decrementSeconds() {
+        gameState.seconds -= 1;
+        return gameState.seconds;
+    }
     function gameRetry() {
-        resetGameLives;
-        resetGameTimer;
+        resetGameLives();
+        resetGameTimer();
     }
     function increaseSetValue() {
-        const getLevel = gameState.levelsInfo.currentLevel;
-        gameState.levelsInfo.currentSetValue = gameState.levelsInfo.setInfoList[getLevel];
+        gameState.levelsInfo.currentSetValue =
+            gameState.levelsInfo.setInEachLevel[gameState.levelsInfo.currentLevel];
     }
     function getSetValue() {
         return gameState.currentSetValue;
     }
     function resetGameLives() {
-        const initialGameState = getInitialGameState();
-        gameState.lives = initialGameState.lives;
+        gameState.lives = getInitialGameState().lives;
     }
     function resetGameTimer() {
-        const initialGameState = getInitialGameState();
-        gameState.seconds = initialGameState.seconds;
+        gameState.seconds = getInitialGameState().seconds;
     }
     function resetGameState() {
         gameState = getInitialGameState();
     }
+    function getGameLevel() {
+        return gameState.levelsInfo.currentLevel;
+    }
     function getGameLife() {
         // for debugging purpose, Added getGameLife().
-        const gameLife = gameState.lives;
-        return gameLife;
+        return gameState.lives;
     }
     function endGame() {
         resetGameState();
     }
+    function decrementSetValue() {
+        gameState.currentSetValue--;
+    }
     function gameMusicPlay() {
-        gameState.gameAudio.getGameAudio.play();
+        gameState.gameAudio.gameBackgroundMusic.play();
     }
     function gameMusicStop() {
-        const backgroundMusic = gameState.gameAudio.getGameAudio();
-        backgroundMusic.pause();
+        gameState.gameAudio.gameBackgroundMusic.pause();
+    }
+    function getLevelClearedSound() {
+        return gameState.gameAudio.levelClearedSound().play();
     }
     function singleSetCompleteSound() {
-        gameState.gameAudio.getSetCompleteSound().play();
+        gameState.gameAudio.setCompleteSound.play();
     }
     function playInvalidInputSound() {
-        gameState.gameAudio.getKeyboardSounds.getInvalidAudio.play();
+        gameState.gameAudio.keyboardSounds.invalidAudio.play();
     }
     function playSuccessfulGreenArrowSound() {
-        gameState.gameAudio.getKeyboardSounds.getGreenAudio.play();
+        gameState.gameAudio.keyboardSounds.greenAudio.play();
     }
     function playSuccessfulRedArrowSound() {
-        gameState.gameAudio.getKeyboardSounds.getRedAudio.play();
+        gameState.gameAudio.keyboardSounds.redAudio.play();
     }
     function muteAudio() {
         gameState.sound = false;
         [
-            gameState.gameAudio.getGameAudio,
-            gameState.gameAudio.getStartSound,
-            gameState.gameAudio.getClickAudio,
-            gameState.gameAudio.getSetCompleteSound,
-            gameState.gameAudio.getKeyboardSounds.getInvalidAudio,
-            gameState.gameAudio.getKeyboardSounds.getGreenAudio,
-            gameState.gameAudio.getKeyboardSounds.getRedAudio
-
-        ].forEach(audio => audio.pause());
-
+            gameState.gameAudio.levelClearedSound,
+            gameState.gameAudio.gameBackgroundMusic,
+            gameState.gameAudio.startSound,
+            gameState.gameAudio.clickAudio,
+            gameState.gameAudio.setCompleteSound,
+            gameState.gameAudio.keyboardSounds.invalidAudio,
+            gameState.gameAudio.keyboardSounds.greenAudio,
+            gameState.gameAudio.keyboardSounds.redAudio,
+        ].forEach((audio) => audio.pause());
     }
     function unMuteAudio() {
         gameState.sound = true;
         [
-            gameState.gameAudio.getGameAudio,
-            gameState.gameAudio.getStartSound,
-            gameState.gameAudio.getClickAudio,
-            gameState.gameAudio.getSetCompleteSound,
-            gameState.gameAudio.getKeyboardSounds.getInvalidAudio,
-            gameState.gameAudio.getKeyboardSounds.getGreenAudio,
-            gameState.gameAudio.getKeyboardSounds.getRedAudio
-
-        ].forEach(audio => { audio.currentTime = 0; audio.play() });
+            gameState.gameAudio.levelClearedSound,
+            gameState.gameAudio.gameBackgroundMusic,
+            gameState.gameAudio.startSound,
+            gameState.gameAudio.clickAudio,
+            gameState.gameAudio.setCompleteSound,
+            gameState.gameAudio.keyboardSounds.invalidAudio,
+            gameState.gameAudio.keyboardSounds.greenAudio,
+            gameState.gameAudio.keyboardSounds.redAudio,
+        ].forEach((audio) => {
+            audio.currentTime = 0;
+            audio.play();
+        });
     }
     function decrementGameLife() {
         gameState.lives--;
@@ -136,6 +147,9 @@ const gameModule = (function () {
     }
 
     return {
+        decrementSetValue,
+        getGameLevel,
+        decrementSeconds,
         gameRetry,
         gameStart,
         gameOver,
@@ -154,6 +168,7 @@ const gameModule = (function () {
         gameMusicStop,
         playSuccessfulGreenArrowSound,
         playSuccessfulRedArrowSound,
+        getLevelClearedSound,
         singleSetCompleteSound,
         getSetValue,
         getGameState,
@@ -182,70 +197,70 @@ const gameModule = (function () {
 // IV. Refactor the code below to use the gameModule above for creating the game logic.
 // Button Animation Logic :
 
-const viewModule = (function () {
+const viewModule = ((game) => {
     let secondsInterval;
-    function StartTimer() {
+    function startTimer() {
         secondsInterval = setInterval(() => {
-            gameState.seconds -= 1;
-            DOMStrings.timerDisplay.textContent = `${gameState.seconds}`;
-            if (gameState.seconds <= 0) {
+            let seconds = game.decrementSeconds();
+            document.querySelector(DOMStrings.timerDisplay).textContent = seconds;
+            if (seconds <= 0) {
                 clearInterval(secondsInterval);
-                gameState.resetGameTimer();
+                game.resetGameTimer();
             }
-        }, 1000)
+        }, 1000);
     }
-    function StopTimer() {
+    function stopTimer() {
         clearInterval(secondsInterval);
     }
     const DOMStrings = {
         elementIDs: {
-            leftButton: '#left',
-            rightButton: '#right',
-            upButton: '#up',
-            downButton: '#down'
+            leftButton: ".left-key",
+            rightButton: ".right-key",
+            upButton: ".up-key",
+            downButton: ".down-key",
         },
-        displaySequence: '.keyDisplay',
-        container: '.container',
-        mainHeading: '.main_heading',
-        defaultLives: '.default_lives',
-        currentLives: '.lives',
-        mainButton: '.main',
-        liveDisplay: '.heart',
-        timerDisplay: '.timer',
-        keyDirections: '.btns',
-        randomKeyArrows: '.arrow-element',
-        keyboardContents: '.contents'
+
+        randomQuotes: '.random-quotations',
+        retryButton: '.retry-btn',
+        metaDataContainer: '.game-metadata',
+        gamePlayView: '.game-playing-view',
+        gameHomeView: '.game-home-view',
+        displaySequence: ".key-sequence-container",
+        homeButton: '.home-btn',
+        container: ".container",
+        mainHeading: ".game-title",
+        defaultLives: ".lives-indicator",
+        currentLives: ".lives-container",
+        mainButton: ".start-btn",
+        displayLife: ".heart-img",
+        timerDisplay: ".timer-countdown",
+        keyDirections: ".btns",
+        randomKeyArrows: ".arrow-element",
+        keyboardContents: ".keyboard-buttons",
+        gameOverPage: '.game-over-heading'
+    };
+    function defaultVisibility() {
+        document
+            .querySelector(DOMStrings.displayLife)
+            .classList.add("display-hidden");
+        document
+            .querySelector(DOMStrings.timerDisplay)
+            .classList.add("display-hidden");
+        document
+            .querySelector(DOMStrings.keyboardContents)
+            .classList.add("display-hidden");
     }
     const resetArrowStyles = () => {
-        [document.querySelector(DOMStrings.elementIDs.upButton),
-        document.querySelector(DOMStrings.elementIDs.downButton),
-        document.querySelector(DOMStrings.elementIDs.leftButton),
-        document.querySelector(DOMStrings.elementIDs.rightButtonButton)].forEach(element => {
-            element.style.transform = '';
-            element.style.boxShadow = '';
-        })
-    }
-    function hideDisplayForRetry() {
-        document.querySelectorAll(DOMStrings.randomKeyArrows).forEach(element => {
-            element.classList.add('display-hidden');
-        })
-        document.querySelector(DOMStrings.defaultLives).classList.add('display-hidden');
-        document.querySelector(DOMStrings.displaySequence).classList.add('display-hidden');
-        document.querySelector(DOMStrings.heart).classList.add('display-hidden');
-        document.querySelector(DOMStrings.timerDisplay).classList.add('display-hidden');
-        document.querySelector(DOMStrings.mainHeading).classList.add('display-hidden');
-        document.querySelector(DOMStrings.keyboardContents).classList.add('display-hidden');
-    }
-    function hideDisplayForHome() {
-        document.querySelectorAll(DOMStrings.randomKeyArrows).forEach(element => {
-            element.classList.add('display-hidden');
-        })
-        document.querySelector(DOMStrings.defaultLives).classList.add('display-hidden');
-        document.querySelector(DOMStrings.heart).classList.add('display-hidden');
-        document.querySelector(DOMStrings.timerDisplay).classList.add('display-hidden');
-        document.querySelector(DOMStrings.displaySequence).classList.add('display-hidden');
-        document.querySelector(DOMStrings.keyboardContents).classList.add('display-hidden');
-    }
+        [
+            document.querySelector(DOMStrings.elementIDs.upButton),
+            document.querySelector(DOMStrings.elementIDs.downButton),
+            document.querySelector(DOMStrings.elementIDs.leftButton),
+            document.querySelector(DOMStrings.elementIDs.rightButton),
+        ].forEach((element) => {
+            element.style.transform = "";
+            element.style.boxShadow = "";
+        });
+    };
     const newSequence = () => {
         // probabilityHtmlElementMap is an object that has following contents:
         // mapTillNow is the accumulator/object which is spread on every iteration overwriting contents from the previous iteration.
@@ -259,100 +274,152 @@ const viewModule = (function () {
         }
         */
         // The below part generates returns all the random arrow elements of a desired length.
-        const getRandomArrowElements = totalArrows => {
+        const getRandomArrowElements = (totalArrows) => {
             const probabilities = [0.25, 0.5, 0.75, 1];
-            const arrowHtmlElements = ['&uarr;', '&larr;', '&rarr;', '&darr;'];
-            const probabilityHtmlElementsMap = probabilities.reduce((mapTillNow, currentProbability, idx) => ({ ...mapTillNow, [currentProbability]: arrowHtmlElements[idx] }), {});
+            const arrowHtmlElements = ["&uarr;", "&larr;", "&rarr;", "&darr;"];
+            const probabilityHtmlElementsMap = probabilities.reduce(
+                (mapTillNow, currentProbability, idx) => ({
+                    ...mapTillNow,
+                    [currentProbability]: arrowHtmlElements[idx],
+                }),
+                {}
+            );
             return Array.from({ length: totalArrows }, () => {
                 const randomProbability = Math.random(); // We can opt out of this line and add Math.random() directly into comparison.
-                for (const probability of Object.keys(probabilityHtmlElementsMap).sort((a, b) => a - b)) {
-                    if (randomProbability <= probability) return probabilityHtmlElementsMap[probability];
+                for (const probability of Object.keys(probabilityHtmlElementsMap).sort(
+                    (a, b) => a - b
+                )) {
+                    if (randomProbability <= probability)
+                        return probabilityHtmlElementsMap[probability];
                 }
-                return '&darr;'
+                return "&darr;";
             });
         };
         const arrowElements = getRandomArrowElements(10);
         document.querySelectorAll(DOMStrings.randomKeyArrows).forEach((item, i) => {
             item.innerHTML = arrowElements[i];
-            item.style.color = (Math.random() <= Math.random()) ? 'green' : 'red';
-        })
-    }
+            item.classList.add('font-size-80');
+            item.style.color = Math.random() <= Math.random() ? "green" : "red";
+        });
+    };
     function animateToLevelZero() {
-        document.querySelector(DOMStrings.defaultLives).textContent = `  x ${gameState.lives}`;
-        document.querySelector(DOMStrings.heart).classList.add('display-visible');
-        document.querySelector(DOMStrings.timerDisplay).classList.add('display-visible', 'timer-boxShadow');
-        document.querySelector(DOMStrings.mainButton).classList.add('font-size-45', 'bg-red', 'color-white', 'border-home', 'transform-for-level-zero');
-        document.querySelector(DOMStrings.displaySequence).classList.add('display-visible');
-        document.querySelector(DOMStrings.keyboardContents).classList.add('display-visible');
-        document.querySelector(DOMStrings.mainButton).textContent = `HOME`;
-        document.body.classList.add('bg-whitesmoke')
-        document.querySelector(DOMStrings.mainHeading).textContent = `DEMO LEVEL`;
-        document.querySelector(DOMStrings.mainHeading).classList.add('color-darkslategray')
-        StartTimer();
+        document.querySelector(DOMStrings.gameHomeView).classList.add('display-none');
+        document.querySelector(DOMStrings.gamePlayView).classList.remove("display-none");
+        document.querySelector(DOMStrings.mainButton).textContent = "HOME";
+        document
+            .querySelector(DOMStrings.mainButton)
+            .classList.add(
+                "transition-to-level-zero",
+                "font-size-45",
+                "bg-red",
+                "color-white",
+                "border-home",
+                "display-none"
+            );
+        document.body.classList.add("bg-whitesmoke");
+        document.querySelector(DOMStrings.mainHeading).textContent = "LEVEL 0: Joe Biden's Focus Certificate";
+        document
+            .querySelector(DOMStrings.mainHeading)
+            .classList.add("color-darkslategray");
+        startTimer();
     }
     function animateToRetry() {
-        StopTimer();
-        hideDisplayForRetry();
-        document.querySelector(DOMStrings.mainButton).textContent = `RETRY`;
-        document.querySelector(DOMStrings.mainButton).classList.add('font-size-80', 'transform-translate-y-200px', 'bg-color-chocolate', 'color-white', 'border-retry');
-        document.body.classList.add('bg-lightgreen');
-        document.querySelector(DOMStrings.mainHeading).classList.add('color-black');
+        stopTimer();
+        document.querySelector(DOMStrings.gamePlayView).classList.add('display-none');
+        document.querySelector(DOMStrings.retryButton).textContent = 'RETRY';
+        document.querySelector(DOMStrings.retryButton).classList.add('transition-to-home');
+        document.querySelector(DOMStrings.gameOverPage).classList.remove('display-none');
     }
     function animateToHomePage() {
-        StopTimer();
-        hideDisplayForHome();
+        stopTimer();
+        document.querySelector(DOMStrings.retryButton).classList.add('display-none');
         document.querySelector(DOMStrings.mainHeading).innerText = `KEY FOCUS`;
-        document.querySelector(DOMStrings.mainHeading).classList.add('color-black');
+        document.querySelector(DOMStrings.mainHeading).classList.add("color-black");
         document.querySelector(DOMStrings.mainButton).textContent = `START`;
-        document.body.classList.add('bg-lightgreen');
-        document.querySelector(DOMStrings.mainButton).classList.add('font-size-100', 'transform-translate-y-200px', 'color-black', 'bg-lightgreen', 'border-start');
+        document.body.classList.add("bg-lightgreen");
+        document
+            .querySelector(DOMStrings.mainButton)
+            .classList.add(
+                "font-size-100",
+                "transition-to-home-page",
+                "color-black",
+                "bg-lightgreen",
+                "border-start"
+            );
+        document.querySelector(DOMStrings.gameOverPage).classList.add('display-none');
+        document.querySelector(DOMStrings.gamePlayView).classList.add('display-none');
+    }
+    function animateToSameLevel() {
+        document.querySelector(DOMStrings.retryButton).class
+        document.querySelector(DOMStrings.gamePlayView).classList.remove('display-none');
+        document.querySelector(DOMStrings.gameOverPage).classList.add("display-none");
+        document.querySelector(DOMStrings.retryButton).textContent = 'HOME';
+        document.querySelector(DOMStrings.retryButton).classList.add(
+            "transition-to-level-zero",
+            "font-size-45",
+            "bg-red",
+            "color-white",
+            "border-home",
+            "display-none"
+        )
     }
 
-    function animateToLevelOne() {
+    function animateToNextLevel() {
+        const levelValue = game.getGameLevel();
+        function animateToLevelOne(levelValue) {
+            animateToLevelZero();
 
-    }
-    function animateToLevelTwo() {
-
-    }
-    function animateToLevelThree() {
-
-    }
-    function animateToLevelFour() {
-
-    }
-    function animateToLevelFive() {
-
-    }
-    const keyBoardOnView = () => {
-        function addBoxShadowAndTransition(element) {
-            element.classList.add('transformKeyBoardOnView');
         }
-        addEventListener('keydown', (e) => {
-            const direction = e.key;
-            if (direction === 'ArrowUp') {
-                document.querySelector(DOMStrings.elementIDs.upButton).style.transform = `scale(.95) translateY(-3px)`;
-                addBoxShadowAndTransition(DOMStrings.elementIDs.upButton);
-            }
-            if (direction === 'ArrowDown') {
-                document.querySelector(DOMStrings.elementIDs.downButton).style.transform = `scale(.95) `;
-                addBoxShadowAndTransition(DOMStrings.elementIDs.downButton);
-            }
-            if (direction === 'ArrowLeft') {
-                document.querySelector(DOMStrings.elementIDs.leftButton).style.transform = `scale(.95) translateX(20px)`;
-                addBoxShadowAndTransition(DOMStrings.elementIDs.leftButton);
-            }
-            if (direction === 'ArrowRight') {
-                document.querySelector(DOMStrings.elementIDs.rightButton).style.transform = `scale(.95) translateX(-20px)`;
-                addBoxShadowAndTransition(DOMStrings.elementIDs.rightButton);
-            }
-        });
+        function animateToLevelTwo(levelValue) {
+
+        }
+        function animateToLevelThree(levelValue) {
+
+        }
+        function animateToLevelFour(levelValue) {
+
+        }
+        function animateToLevelFive(levelValue) {
+
+        }
     }
+    const animateOnKeypress = (keypressDirection) => {
+        function addBoxShadowAndTransition(element) {
+            element.classList.add("animate-keypress");
+        }
+        switch (keypressDirection) {
+            case "ArrowUp":
+                document.querySelector(
+                    DOMStrings.elementIDs.upButton
+                ).style.transform = `scale(.95) translateY(-3px)`;
+                addBoxShadowAndTransition(DOMStrings.elementIDs.upButton);
+                break;
+            case "ArrowDown":
+                document.querySelector(
+                    DOMStrings.elementIDs.downButton
+                ).style.transform = `scale(.95) `;
+                addBoxShadowAndTransition(DOMStrings.elementIDs.downButton);
+                break;
+            case "ArrowLeft":
+                document.querySelector(
+                    DOMStrings.elementIDs.leftButton
+                ).style.transform = `scale(.95) translateX(20px)`;
+                addBoxShadowAndTransition(DOMStrings.elementIDs.leftButton);
+                break;
+            case "ArrowRight":
+                document.querySelector(
+                    DOMStrings.elementIDs.rightButton
+                ).style.transform = `scale(.95) translateX(-20px)`;
+                addBoxShadowAndTransition(DOMStrings.elementIDs.rightButton);
+                break;
+        }
+    };
     return {
-        StartTimer,
-        StopTimer,
+        startTimer,
+        stopTimer,
         DOMStrings,
         resetArrowStyles,
-        keyBoardOnView,
+        animateOnKeypress,
         animateToHomePage,
         animateToRetry,
         animateToLevelZero,
@@ -361,53 +428,66 @@ const viewModule = (function () {
         animateToLevelThree,
         animateToLevelFour,
         animateToLevelFive,
-        newSequence
+        newSequence,
+        defaultVisibility,
     };
-})()
+})(gameModule);
 
-const controller = (function (game, view) {
-
+const controller = ((game, view) => {
     function initGame() {
-        document.querySelector(view.DOMStrings.mainButton).addEventListener('click', () => {
-            view.animateToLevelZero();
-            game.gameStart();
-        })
+        view.defaultVisibility();
+        document
+            .querySelector(view.DOMStrings.mainButton)
+            .addEventListener("click", () => {
+                view.animateToLevelZero();
+                game.gameStart();
+                gameStart();
+            });
     }
-
-
-    const entireLogic = () => {
-        const arrowCount = document.querySelector(viewModule.DOMStrings.randomKeyArrows).length;
+    const gameStart = () => {
+        const arrowCount = document.querySelector(
+            view.DOMStrings.randomKeyArrows
+        ).length;
         let index = 0;
-        // Key Interactions Logic : 
-        addEventListener('keyup', (e) => {
-            view.resetArrowStyles();
+        // Key Interactions Logic :
+        document.querySelector(view.DOMStrings.keyboardContents).addEventListener("keydown", (e) => {
             const keyPress = e.key;
-            const currentSpan = document.querySelector(viewModule.DOMStrings.randomKeyArrows)[index];
+            view.animateOnKeypress(keyPress);
+            view.resetArrowStyles();
+            const currentSpan = document.querySelector(
+                view.DOMStrings.randomKeyArrows
+            )[index];
             const currentSpanStyles = () => {
-                currentSpan.classList.add('color-gray', 'arrow-transition-to-gray', 'font-size-70');
-            }
-            const greenCurrentSpanColor = () => { currentSpan.style.color = 'green' }
-            const redCurrentSpanColor = () => { currentSpan.style.color = 'red' }
-
-            const allDirections = {
-                directionUp: currentSpan.innerHTML === `↑`,
-                directionDown: currentSpan.innerHTML === `↓`,
-                directionLeft: currentSpan.innerHTML === `←`,
-                directionRight: currentSpan.innerHTML === `→`,
-            }
-            // Successful Sounds : 
-            const successfulGreenSounds = {
-                ArrowUp: allDirections.directionUp && greenCurrentSpanColor(),
-                ArrowDown: allDirections.directionDown && greenCurrentSpanColor(),
-                ArrowLeft: allDirections.directionLeft && greenCurrentSpanColor(),
-                ArrowRight: allDirections.directionRight && greenCurrentSpanColor()
+                currentSpan.classList.add(
+                    "color-gray",
+                    "arrow-transition-to-gray",
+                    "font-size-70"
+                );
             };
-            const successfulRedSounds = {
-                ArrowUp: allDirections.directionDown && redCurrentSpanColor(),
-                ArrowDown: allDirections.directionUp && redCurrentSpanColor(),
-                ArrowLeft: allDirections.directionLeft && redCurrentSpanColor(),
-                ArrowRight: allDirections.directionRight && redCurrentSpanColor()
+            const greenCurrentSpanColor = () => {
+                currentSpan.style.color == "green";
             };
+            const redCurrentSpanColor = () => {
+                currentSpan.style.color == "red";
+            };
+            const arrowKeysToCharacterMap = { Up: `↑`, Down: `↓`, Left: `←`, Right: `→` };
+            const arrowCharactersToCharacterMappedOpposite = { Up: 'Down', Down: 'Up', Left: "Right", Right: "Left" };
+            const arrowKeys = Object.keys(arrowKeysToCharacterMap);
+            const allDirections = arrowKeys.reduce((directions, key) => {
+                directions[`direction${key}`] = currentSpan.innerHTML === arrowKeysToCharacterMap[key];
+                return directions;
+            }, {});
+            // Successful Sounds :
+            const successfulGreenSounds = arrowKeys.reduce((greenSounds, currentValue) => {
+                return {
+                    ...greenSounds, [`Arrow${currentValue}`]: allDirections[`direction${currentValue}`] && greenCurrentSpanColor()
+                };
+            }, {});
+            const successfulRedSounds = arrowKeys.reduce((redSounds, currentValue) => {
+                return {
+                    ...redSounds, [`Arrow${currentValue}`]: allDirections[`direction${arrowCharactersToCharacterMappedOpposite[currentValue]}`] && redCurrentSpanColor()
+                }
+            })
             // UnSuccessful Sounds :
 
             const unSuccessfulGreenSound = !successfulGreenSounds[keyPress];
@@ -419,28 +499,43 @@ const controller = (function (game, view) {
                 currentSpanStyles();
                 game.playSuccessfulGreenArrowSound();
                 index++;
-            }
-            else if (successfulRedSounds[keyPress]) {
+            } else if (successfulRedSounds[keyPress]) {
                 currentSpanStyles();
                 game.playSuccessfulRedArrowSound();
                 index++;
-            }
-            else if (unSuccessfulGreenSound || unSuccessfulRedSounds) {
+            } else if (unSuccessfulGreenSound || unSuccessfulRedSounds) {
                 game.playInvalidInputSound();
                 game.decrementGameLife();
-                document.querySelector(view.DOMStrings.currentLives).textContent = `x ${view.DOMStrings.currentLives}`
+                document.querySelector(
+                    view.DOMStrings.defaultLives
+                ).textContent = `x ${view.DOMStrings.defaultLives}`;
             }
-            if (index >= arrowCount) {
-                game.singleSetCompleteSound();
-                if (game.currentSetValue > 0) {
+            if (index > arrowCount && game.lives > 0 && game.decrementSeconds() > 0) {
+                if (game.getSetValue() > 0) {
                     view.newSequence();
-                    game.currentSetValue--;
+                    game.singleSetCompleteSound();
+                    game.decrementSetValue();
+                    index = 0;
                 }
-                index = 0; const currentLevel = gameState.levelsInfo.currentLevel;
-                document.querySelectorAll(game.DOMStrings.randomKeyArrows).forEach(element => {
-                    element.classList.add('font-size-80');
-                })
+                else if (game.getSetValue === 0) {
+                    game.levelClearedSound();
+                }
             }
-        })
+            else {
+                if (!game.getGameLevel()) {
+                    game.gameOver();
+                    view.animateToHomePage();
+                }
+                else {
+                    game.gameRetry();
+                    view.animateToRetry();
+                }
+            }
+        });
     };
-})(gameModule, viewModule)
+    return {
+        initGame,
+    };
+})(gameModule, viewModule);
+
+controller.initGame();
