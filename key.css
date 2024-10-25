@@ -102,7 +102,7 @@ section {
 }
 body {
 	line-height: 5.5rem;
-	background-color: whitesmoke;
+	background-color: lightgreen;
 	transition: 0.5s all ease-in-out;
 }
 ol,
@@ -408,6 +408,7 @@ button {
 	top: 45vh;
 	left:12vw;
 	display: flex;
+	justify-content: space-around;
 	height: 100px;
 	width: 75%;
 	border : 3px solid gainsboro;
@@ -444,10 +445,12 @@ button {
 	visibility: visible;
 }
 .animate-keypress {
-	box-shadow: 0px 0px 10px 5px black inset;
-	transition: all 0.3s ease;
+	transform: scale(1) translate(0);
+	box-shadow: none;
+	transition: all 0.1s ease-out;
 }
 .transition-to-level-zero {
+	font-family: sans-serif;
 	cursor: pointer;
 	transform : translate(34vw, -37.5vh);
 	animation: a .3s cubic-bezier(.1,.1,.1,.1);
@@ -560,6 +563,25 @@ button {
     font-size: 55px;
 	display: none;
   }
+}
+video{
+	position: absolute;
+	width: auto;
+	height: auto;
+	top: 50%;
+	left: 50%;
+	min-height: 100%;
+	min-width: 100%;
+	transform: translate(-50%,-50%);
+}
+.level-four-background{
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	z-index: -1;
 }
 
 /* .transition-retry-to-level{
@@ -794,6 +816,12 @@ button {
 .color-gray {
 	color: gray;
 }
+.color-green{
+	color:green;
+}
+.color-red{
+	color: red;
+}
 /* Button Borders */
 .border-retry {
 	border: brown;
@@ -804,7 +832,9 @@ button {
 .border-start {
 	border: 5px solid lightgreen;
 }
-
+.remove-color{
+	color:white;
+}
 .timer-boxShadow {
 	box-shadow: 0px 0px 4px 3px darkgray;
 }
@@ -848,6 +878,10 @@ button {
   100% { background-color: whitesmoke; }      /* #f5f5f5 */
 }
 
+/* Font-family */
+.font-mono{
+	font-family: monospace;
+}
 /* Font-Sizes */
 .font-size-45 {
 	font-size: 45px;
@@ -857,11 +891,36 @@ button {
 }
 .font-size-80 {
 	font-size: 80px;
+	transition: all .3s cubic-bezier(.1,.1,.1,.1);
 }
 .font-size-100 {
 	font-size: 100px;
 }
 
-.arrow-transition-to-gray {
+.arrow-transition-to-small {
+	font-size: 70px;
 	transition: 0.3s ease all;
+}
+
+/* Keyboard Animations*/
+
+.up-keydown{
+	transform: scale(.95) translateY(-3px);
+	box-shadow: 0px 0px 10px 5px black inset;
+	transition: all .1s ease-in;
+}
+.down-keydown{
+	transform: scale(.95);
+	box-shadow: 0px 0px 10px 5px black inset;
+	transition: all .1s ease-in;
+}
+.left-keydown{
+	transform: scale(.95) translateX(20px);
+	box-shadow: 0px 0px 10px 5px black inset;
+	transition: all .1s ease-in;
+}
+.right-keydown{
+	transform: scale(.95) translateX(-20px);
+	box-shadow: 0px 0px 10px 5px black inset;
+	transition: all .1s ease-in;
 }
