@@ -12,7 +12,6 @@ const gameModule = (() => {
             currentSetValue: 1,
         },
         isStart: false,
-        isGameOver: false,
         sound: true,
         gameAudio: {
             gameBackgroundMusic: new Audio("GameAudio/gameBackgroundMusic.mp3"),
@@ -176,10 +175,7 @@ const gameModule = (() => {
         endGame,
         gameMusicPlay,
         gameMusicStop,
-        playSuccessfulGreenArrowSound,
-        playSuccessfulRedArrowSound,
-        getLevelClearedSound,
-        singleSetCompleteSound,
+        playSuccessfulGreenArrowSound, getLevelClearedSound, singleSetCompleteSound, playSuccessfulRedArrowSound, playInvalidInputSound, playHomeSound, playRetrySound,
         getSetValue,
         getGameState,
         playInvalidInputSound, playHomeSound, playRetrySound
@@ -189,14 +185,16 @@ const gameModule = (() => {
 const viewModule = ((game) => {
     let secondsInterval;
     function startTimer() {
+        stopTimer();
         secondsInterval = setInterval(() => {
             let seconds = game.decrementSeconds();
             document.querySelector(DOMStrings.timerDisplay).textContent = seconds;
             if (seconds <= 0) {
+                stopTimer();
                 if (!game.getGameLevel()) {
                     game.playHomeSound();
-                    animateToHomePage();
                     game.resetGameState();
+                    animateToHomePage();
                 }
                 else {
                     game.retrySound();
@@ -270,6 +268,9 @@ const viewModule = ((game) => {
                 return "&darr;";
             });
         };
+        document.querySelectorAll(DOMStrings.randomKeyArrows).forEach((item, i) => {
+            item.innerHTML = "";
+        })
         const arrowElements = getRandomArrowElements(10);
         document.querySelectorAll(DOMStrings.randomKeyArrows).forEach((item, i) => {
             item.innerHTML = arrowElements[i];
@@ -279,7 +280,6 @@ const viewModule = ((game) => {
         });
     };
     function animateToLevelZero() {
-        startTimer();
         document.querySelector(DOMStrings.mainButton).classList.remove('transition-to-home-page')
         document.body.classList.remove("bg-lightgreen");
         document.querySelector(DOMStrings.mainButton).textContent = "HOME";
@@ -307,7 +307,6 @@ const viewModule = ((game) => {
             .classList.add("color-darkslategray");
     }
     function animateToRetry() {
-        stopTimer();
         document.querySelector(DOMStrings.gamePlayView).classList.add('display-none');
         document.querySelector(DOMStrings.retryButton).textContent = 'RETRY';
         document.querySelector(DOMStrings.retryButton).classList.add('transition-to-home-page');
@@ -316,7 +315,7 @@ const viewModule = ((game) => {
     function animateToHomePage() {
         stopTimer();
         document.querySelector(DOMStrings.gameHomeView).classList.remove('display-none');
-        // document.querySelector(DOMStrings.homeButton).classList.add('transition-to-home-page');
+
         setTimeout(() => {
             document.querySelector(DOMStrings.mainButton)
                 .classList.remove(
@@ -360,6 +359,10 @@ const viewModule = ((game) => {
             "display-none"
         )
         animateToNextLevel(level);
+        setTimeout(() => {
+            stopTimer();
+            startTimer();
+        })
     }
 
     function animateToNextLevel(level) {
@@ -419,51 +422,28 @@ const viewModule = ((game) => {
             case 5: animateToLevelFive(); break;
         }
     }
-    const animateOnKeypress = (keypressDirection) => {
-        function addAnimateOnKeyUp(element) {
-            setTimeout(() => {
-                document.querySelector(element).classList.add('animate-keypress')
-            }, 200)
+    function animateOnKeyDown(input) {
+        switch (input) {
+            case "ArrowUp": document.querySelector(DOMStrings.elementIDs.upButton).classList.add('up-keydown'); break;
+            case "ArrowDown": document.querySelector(DOMStrings.elementIDs.downButton).classList.add('down-keydown'); break;
+            case "ArrowLeft": document.querySelector(DOMStrings.elementIDs.leftButton).classList.add('left-keydown'); break;
+            case "ArrowRight": document.querySelector(DOMStrings.elementIDs.rightButton).classList.add('right-keydown'); break;
         }
-        function removeKeyPress(element) {
-            document.querySelector(element).classList.remove('animate-keypress');
+    }
+    function animateOnKeyUp(input) {
+        switch (input) {
+            case "ArrowUp": document.querySelector(DOMStrings.elementIDs.upButton).classList.remove('up-keydown'); break;
+            case "ArrowDown": document.querySelector(DOMStrings.elementIDs.downButton).classList.remove('down-keydown'); break;
+            case "ArrowLeft": document.querySelector(DOMStrings.elementIDs.leftButton).classList.remove('left-keydown'); break;
+            case "ArrowRight": document.querySelector(DOMStrings.elementIDs.rightButton).classList.remove('right-keydown'); break;
         }
-        switch (keypressDirection) {
-            case "ArrowUp":
-                removeKeyPress(DOMStrings.elementIDs.upButton);
-                document.querySelector(
-                    DOMStrings.elementIDs.upButton
-                ).classList.add('up-keydown');
-                addAnimateOnKeyUp(DOMStrings.elementIDs.upButton);
-                break;
-            case "ArrowDown":
-                removeKeyPress(DOMStrings.elementIDs.downButton);
-                document.querySelector(
-                    DOMStrings.elementIDs.downButton
-                ).classList.add('down-keydown')
-                addAnimateOnKeyUp(DOMStrings.elementIDs.downButton);
-                break;
-            case "ArrowLeft":
-                removeKeyPress(DOMStrings.elementIDs.leftButton);
-                document.querySelector(
-                    DOMStrings.elementIDs.leftButton
-                ).classList.add('left-keydown');
-                addAnimateOnKeyUp(DOMStrings.elementIDs.leftButton)
-                break;
-            case "ArrowRight":
-                removeKeyPress(DOMStrings.elementIDs.rightButton);
-                document.querySelector(
-                    DOMStrings.elementIDs.rightButton
-                ).classList.add('right-keydown');
-                addAnimateOnKeyUp(DOMStrings.elementIDs.rightButton)
-                break;
-        }
-    };
+    }
     return {
         startTimer,
         stopTimer,
         DOMStrings,
-        animateOnKeypress,
+        animateOnKeyDown,
+        animateOnKeyUp,
         animateToHomePage,
         animateToRetry,
         animateToSameLevel,
@@ -475,37 +455,24 @@ const viewModule = ((game) => {
 
 const controller = ((game, view) => {
 
-    function checkGameTimerStatus() {
-        const intervalChecks = 60000;
-        if (!game.decrementSeconds()) {
-            if (!game.getGameLevel) {
+    function initGame() {
+        // Retry Button Listener
+        document
+            .querySelector(view.DOMStrings.retryButton)
+            .addEventListener('click', () => {
+                view.stopTimer();
+                game.playStartSound();
+                view.animateToSameLevel(game.getGameLevel());
+            })
+        // Home Button Listener
+        document
+            .querySelector(view.DOMStrings.homeButton)
+            .addEventListener('click', () => {
+                view.stopTimer();
                 game.playHomeSound();
                 view.animateToHomePage();
                 game.resetGameState();
-            }
-            else {
-                game.retrySound();
-                game.gameRetry();
-                view.animateToRetry();
-            }
-        }
-        else {
-            setTimeout(checkGameTimerStatus, intervalChecks);
-        }
-    }
-
-    function initGame() {
-        // Retry Button Listener
-        document.querySelector(view.DOMStrings.retryButton).addEventListener('click', () => {
-            game.playStartSound();
-            view.animateToSameLevel(game.getGameLevel());
-        })
-        // Home Button Listener
-        document.querySelector(view.DOMStrings.homeButton).addEventListener('click', () => {
-            game.playHomeSound();
-            view.animateToHomePage();
-            game.resetGameState();
-        })
+            })
         // Start Button Listener
         document
             .querySelector(view.DOMStrings.mainButton)
@@ -513,21 +480,26 @@ const controller = ((game, view) => {
                 view.animateToLevelZero();
                 game.startGame();
                 view.newSequence();
-                checkGameTimerStatus();
                 gameStart();
             });
+        // Keyboard Animations
+        document
+            .addEventListener("keyup", (e) => {
+                let input = e.key;
+                view.animateOnKeyUp(input);
+            })
     }
     function gameStart() {
         const arrowCount = document.querySelectorAll(
             '.arrow-element'
         ).length;
-        const arrowList = document.querySelectorAll('.arrow-element');
+        const arrowList = document.querySelector(view.DOMStrings.randomKeyArrows);
         const directionContainer = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']
         let index = 0;
         // Key Interactions Logic :
-        addEventListener("keydown", (e) => {
+        document.addEventListener("keydown", (e) => {
             const keyPress = e.key;
-            view.animateOnKeypress(keyPress);
+            view.animateOnKeyDown(keyPress);
             if (!directionContainer.includes(keyPress)) {
                 return
             }
@@ -569,24 +541,28 @@ const controller = ((game, view) => {
                     [`Arrow${currentValue}`]: isOppositeDirection && isCurrentSpanRed
                 };
             }, {});
+
             // UnSuccessful Sounds :
-
-            const unSuccessfulGreenSound = !successfulGreenSounds[keyPress];
-            const unSuccessfulRedSounds = !successfulRedSounds[keyPress];
-
+            // console.log(successfulGreenSounds[keyPress])
+            // console.log(successfulRedSounds[keyPress])
+            let unSuccessfulGreenSound = !successfulGreenSounds[keyPress];
+            let unSuccessfulRedSounds = !successfulRedSounds[keyPress];
             // Gray Out Logic
 
             if (successfulGreenSounds[keyPress]) {
                 currentSpanStyles();
+                arrowList.forEach(item => console.log(item.innerHTML))
                 game.playSuccessfulGreenArrowSound();
                 index++;
             } else if (successfulRedSounds[keyPress]) {
                 currentSpanStyles();
+                arrowList.forEach(item => console.log(item.innerHTML))
                 game.playSuccessfulRedArrowSound();
                 index++;
             } else if (unSuccessfulGreenSound || unSuccessfulRedSounds) {
                 game.playInvalidInputSound();
                 game.decrementGameLife();
+                // arrowList.forEach(item => console.log(item.innerHTML))
                 if (!game.getGameLife()) {
                     index = 0;
                     if (!game.getGameLevel()) {
@@ -605,6 +581,7 @@ const controller = ((game, view) => {
                 ).textContent = `x ${game.getGameLife()}`;
             }
             if (index === arrowCount && game.getGameLife() > 0) {
+                arrowList.forEach(item => console.log(item.innerHTML))
                 game.decrementSetValue();
                 view.newSequence();
                 index = 0;
