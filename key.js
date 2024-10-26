@@ -493,7 +493,7 @@ const controller = ((game, view) => {
         const arrowCount = document.querySelectorAll(
             '.arrow-element'
         ).length;
-        const arrowList = document.querySelector(view.DOMStrings.randomKeyArrows);
+        const arrowList = document.querySelectorAll(view.DOMStrings.randomKeyArrows);
         const directionContainer = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']
         let index = 0;
         // Key Interactions Logic :
