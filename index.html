@@ -52,12 +52,20 @@
 		<div class="game-home-view">
 			<button class="start-btn">START</button>
 		</div>
-		<div class="game-over-heading display-none">GAME OVER</div>
+		<div class="game-over-heading game-over-text display-none">GAME OVER</div>
 		<button class="retry-btn display-none">RETRY</button>
-		<div class="level-four-background display-none">
-			<video autoplay muted>
+		<div class="special-level-background display-none">
+			<video id="level-4-video" class="display-none" muted>
+				<source src="./levelBackgrounds/levelFourBg.mp4" type="video/mp4" />
+			</video>
+			<video id="level-5-video" class="display-none" muted>
+				<source src="./levelBackgrounds/levelFiveBg.mp4" type="video/mp4" />
+			</video>
+		</div>
+		<div class="end-page display-none">
+			<video id="credit-dialogue">
 				<source
-					src="./levelBackgrounds/tunnel-heart-loop-1080p.mp4"
+					src="./levelBackgrounds/congratulatoryVideo.mp4"
 					type="video/mp4"
 				/>
 			</video>

@@ -27,6 +27,7 @@ const gameModule = (() => {
                 redAudio: new Audio("GameAudio/MPOP.wav"),
             },
         },
+        gameSpecialBg: document.querySelectorAll('video')
     });
     var gameState = getInitialGameState();
     function startGame() {
@@ -51,7 +52,6 @@ const gameModule = (() => {
     }
     function levelUp() {
         // Level 0 -> 5:
-        gameState.levelClearedSound.play();
         resetGameLives();
         resetGameTimer();
         gameState.levelsInfo.currentLevel++;
@@ -65,18 +65,25 @@ const gameModule = (() => {
         resetGameLives();
         resetGameTimer();
     }
+    function getSpecialBg() {
+        return gameState.gameSpecialBg;
+    }
     function increaseSetValue() {
         gameState.levelsInfo.currentSetValue =
             gameState.levelsInfo.setInEachLevel[gameState.levelsInfo.currentLevel];
+        console.log(gameState.levelsInfo.currentSetValue);
     }
     function getSetValue() {
-        return gameState.currentSetValue;
+        return gameState.levelsInfo.currentSetValue;
     }
     function resetGameLives() {
         gameState.lives = getInitialGameState().lives;
     }
     function resetGameTimer() {
         gameState.seconds = getInitialGameState().seconds;
+    }
+    function getTimerValue() {
+        return gameState.seconds; // debugging purpose
     }
     function resetGameState() {
         gameState = getInitialGameState();
@@ -92,7 +99,7 @@ const gameModule = (() => {
         resetGameState();
     }
     function decrementSetValue() {
-        gameState.currentSetValue--;
+        gameState.levelsInfo.currentSetValue--;
     }
     function gameMusicPlay() {
         gameState.gameAudio.gameBackgroundMusic.play();
@@ -155,6 +162,8 @@ const gameModule = (() => {
     }
 
     return {
+        getSpecialBg,
+        getTimerValue,
         playStartSound,
         decrementSetValue,
         getGameLevel,
@@ -183,29 +192,40 @@ const gameModule = (() => {
 })();
 
 const viewModule = ((game) => {
+    // Global View Variables
+    const globalView = {
+        videoElement: null,
+        videoHandler: null
+    };
     let secondsInterval;
     function startTimer() {
-        stopTimer();
-        secondsInterval = setInterval(() => {
-            let seconds = game.decrementSeconds();
-            document.querySelector(DOMStrings.timerDisplay).textContent = seconds;
-            if (seconds <= 0) {
-                stopTimer();
-                if (!game.getGameLevel()) {
-                    game.playHomeSound();
-                    game.resetGameState();
-                    animateToHomePage();
+        if (!secondsInterval) {
+            secondsInterval = setInterval(() => {
+                let seconds = game.decrementSeconds();
+                document.querySelector(DOMStrings.timerDisplay).textContent = seconds;
+                document.querySelector(
+                    DOMStrings.defaultLives
+                ).textContent = `x ${game.getGameLife()}`;
+                if (seconds <= 0) {
+                    stopTimer();
+                    if (!game.getGameLevel()) {
+                        game.playHomeSound();
+                        game.resetGameState();
+                        animateToHomePage();
+                    }
+                    else {
+                        game.playRetrySound();
+                        animateToRetry();
+                        game.gameRetry();
+                    }
                 }
-                else {
-                    game.retrySound();
-                    animateToRetry();
-                    game.gameRetry()
-                }
-            }
-        }, 1000);
+            }, 1000);
+        }
     }
+
     function stopTimer() {
         clearInterval(secondsInterval);
+        secondsInterval = null;
     }
     const DOMStrings = {
         elementIDs: {
@@ -214,7 +234,10 @@ const viewModule = ((game) => {
             upButton: ".up-key",
             downButton: ".down-key",
         },
-
+        videoElementIDs: {
+            4: 'level-4-video',
+            5: 'level-5-video'
+        },
         randomQuotes: '.random-quotations',
         retryButton: '.retry-btn',
         metaDataContainer: '.game-metadata',
@@ -232,8 +255,34 @@ const viewModule = ((game) => {
         keyDirections: ".btns",
         randomKeyArrows: ".arrow-element",
         keyboardContents: ".keyboard-buttons",
-        gameOverPage: '.game-over-heading'
+        gameOverPage: '.game-over-heading',
+        specialLevelPage: '.special-level-background',
     };
+    function startLoop(video) {
+        video.currentTime = 0;
+        video.play();
+    }
+    function specialLevelLoop(level) {
+        const video = document.getElementById(DOMStrings.videoElementIDs[level]);
+        console.log(video);
+        if (!video) {
+            console.error("No video found by the give id", `${video}`); return;
+        }
+        if (globalView.videoElement) { specialLevelLoopEnd() }
+        globalView.videoElement = video;
+        const handler = () => startLoop(video)
+        video.addEventListener('ended', handler)
+        video.play();
+        globalView.videoHandler = handler;
+    }
+    function specialLevelLoopEnd() {
+        if (!globalView.videoElement) {
+            console.error("No video exists!!!"); return;
+        }
+        const video = globalView.videoElement;
+        video.removeEventListener('ended', globalView.videoHandler)
+        globalView.videoElement = null;
+    }
     const newSequence = () => {
         // probabilityHtmlElementMap is an object that has following contents:
         // mapTillNow is the accumulator/object which is spread on every iteration overwriting contents from the previous iteration.
@@ -268,9 +317,9 @@ const viewModule = ((game) => {
                 return "&darr;";
             });
         };
-        document.querySelectorAll(DOMStrings.randomKeyArrows).forEach((item, i) => {
-            item.innerHTML = "";
-        })
+        // document.querySelectorAll(DOMStrings.randomKeyArrows).forEach((item, i) => {
+        //     item.innerHTML = "";
+        // })
         const arrowElements = getRandomArrowElements(10);
         document.querySelectorAll(DOMStrings.randomKeyArrows).forEach((item, i) => {
             item.innerHTML = arrowElements[i];
@@ -280,6 +329,7 @@ const viewModule = ((game) => {
         });
     };
     function animateToLevelZero() {
+        document.querySelector(DOMStrings.timerDisplay).textContent = 60;
         document.querySelector(DOMStrings.mainButton).classList.remove('transition-to-home-page')
         document.body.classList.remove("bg-lightgreen");
         document.querySelector(DOMStrings.mainButton).textContent = "HOME";
@@ -299,7 +349,8 @@ const viewModule = ((game) => {
             document.querySelector(DOMStrings.mainButton).classList.add('display-none');
             document.querySelector(DOMStrings.gamePlayView).classList.remove("display-none");
             document.body.classList.add("bg-whitesmoke");
-            document.querySelector(DOMStrings.mainHeading).textContent = "KEY FOCUS : TUTORIAL";
+            document.querySelector(DOMStrings.mainHeading).textContent = "CAPTAIN BUGGY";
+            document.querySelector(DOMStrings.mainHeading).classList.add('animate-heading');
             startTimer();
         }, 300);
         document
@@ -307,15 +358,32 @@ const viewModule = ((game) => {
             .classList.add("color-darkslategray");
     }
     function animateToRetry() {
+        document.querySelector(DOMStrings.retryButton).classList.add('transition-to-retry-page');
         document.querySelector(DOMStrings.gamePlayView).classList.add('display-none');
+        document.querySelector(DOMStrings.retryButton).classList.remove("display-none",
+            "font-size-45",
+            "bg-red",
+            "color-white",
+            "border-home",
+            "transition-to-level-zero");
         document.querySelector(DOMStrings.retryButton).textContent = 'RETRY';
-        document.querySelector(DOMStrings.retryButton).classList.add('transition-to-home-page');
         document.querySelector(DOMStrings.gameOverPage).classList.remove('display-none');
+        setTimeout(() => {
+            document.body.className = 'container bg-change-colors'
+            if (game.getGameLevel() > 3) {
+                document.getElementById(DOMStrings.videoElementIDs[game.getGameLevel()]).classList.add('display-none');
+            }
+            document.querySelector(DOMStrings.mainHeading).classList.add("display-none")
+        }, 300)
+        stopTimer();
     }
     function animateToHomePage() {
-        stopTimer();
+        if (game.getGameLevel() > 3) {
+            specialLevelLoopEnd()
+            document.querySelector(DOMStrings.specialLevelPage).classList.add('display-none');
+        }
+        document.querySelector(DOMStrings.displaySequence).className = 'key-sequence-container';
         document.querySelector(DOMStrings.gameHomeView).classList.remove('display-none');
-
         setTimeout(() => {
             document.querySelector(DOMStrings.mainButton)
                 .classList.remove(
@@ -326,7 +394,6 @@ const viewModule = ((game) => {
                     "transition-to-level-zero"
                 );
         }, 300)
-
         document.querySelector(DOMStrings.mainButton).classList.remove('display-none');
         document.querySelector(DOMStrings.gamePlayView).classList.add('display-none');
         document.querySelector(DOMStrings.mainHeading).innerText = `KEY FOCUS`;
@@ -347,8 +414,8 @@ const viewModule = ((game) => {
         document.querySelector(DOMStrings.gamePlayView).classList.add('display-none');
     }
     function animateToSameLevel(level) {
-        document.querySelector(DOMStrings.gamePlayView).classList.remove('display-none');
-        document.querySelector(DOMStrings.gameOverPage).classList.add("display-none");
+        document.querySelector(DOMStrings.timerDisplay).textContent = 60;
+        document.querySelector(DOMStrings.retryButton).classList.remove("transition-to-retry-page")
         document.querySelector(DOMStrings.retryButton).textContent = 'HOME';
         document.querySelector(DOMStrings.retryButton).classList.add(
             "transition-to-level-zero",
@@ -356,70 +423,79 @@ const viewModule = ((game) => {
             "bg-red",
             "color-white",
             "border-home",
-            "display-none"
         )
-        animateToNextLevel(level);
         setTimeout(() => {
-            stopTimer();
-            startTimer();
-        })
+            document.querySelector(DOMStrings.mainHeading).classList.remove("display-none")
+            document.querySelector(DOMStrings.gameOverPage).classList.add("display-none");
+            document.querySelector(DOMStrings.retryButton).classList.add("display-none");
+            document.querySelector(DOMStrings.gamePlayView).classList.remove('display-none');
+            document.body.classList.remove('bg-change-colors');
+            if (game.getGameLevel() > 3) {
+                document.getElementById(DOMStrings.videoElementIDs[game.getGameLevel()]).classList.remove('display-none');
+            }
+        }, 300)
+        animateToGivenLevel(level);
     }
-
-    function animateToNextLevel(level) {
-        function animateToLevelOne() {
-            document.querySelector(DOMStrings.mainHeading).textContent = 'KEY FOCUS :LEVEL-1(Squirrel-Seeking Rookie)';
-        }
-        function animateToLevelTwo() {
-            document.querySelector(DOMStrings.mainHeading).textContent = "KEY FOCUS : LEVEL-2(Daydreaming Dynamo)";
-            let levelTwo = setInterval(() => {
-                if (Math.random() <= .5) {
-                    document.body.style.backgroundColor = 'crimson';
-                } else {
-                    document.body.style.backgroundColor = 'lawngreen';
-                }
-                if (!game.getSetValue() || !game.decrementSeconds()) {
-                    clearInterval(levelTwo);
-                }
-            }, 2500)
-        }
-        function animateToLevelThree() {
-            document.querySelector(DOMStrings.mainHeading).textContent = "KEY FOCUS : LEVEL-3(Mindful Multitasker)";
-            let levelThree = setInterval(() => {
-                let randomNumber = Math.random();
-                switch (randomNumber) {
-                    case (randomNumber <= 0.25):
-                        document.body.style.backgroundColor = "green"; break;
-                    case (randomNumber > 0.25 && randomNumber <= 0.5):
-                        document.body.style.backgroundColor = "red"; break;
-                    case (randomNumber > 0.50 && randomNumber <= 0.75):
-                        document.body.style.backgroundColor = "black";
-                        document.querySelector(DOMStrings.defaultLives).classList.add('color-white');
-                        document.querySelector(DOMStrings.mainHeading).classList.add('color-white');
-                        break;
-                    case (randomNumber > 0.75 && randomNumber <= 1):
-                        document.body.style.backgroundColor = "white";
-                        document.querySelector(DOMStrings.mainHeading).classList.remove('color-white');
-                        document.querySelector(DOMStrings.defaultLives).classList.remove('color-white');
-                        break;
-                }
-                if (!game.getSetValue() || !game.decrementSeconds()) {
-                    clearInterval(levelThree);
-                }
-            }, 2000)
-        }
-        function animateToLevelFour() {
-            document.querySelector(DOMStrings.mainHeading).textContent = "KEY FOCUS : LEVEL-4(Concentration Ninja)";
-
-        }
-        function animateToLevelFive() {
-            document.querySelector(DOMStrings.mainHeading).textContent = "KEY FOCUS : LEVEL-5";
-        }
+    function animateToLevelOne() {
+        document.querySelector(DOMStrings.timerDisplay).textContent = 60;
+        document.querySelector(DOMStrings.mainHeading).classList.remove('animate-heading')
+        document.querySelector(DOMStrings.mainHeading).textContent = 'EASY';
+        document.querySelector(DOMStrings.mainHeading).classList.add('animate-heading')
+    }
+    function animateToLevelTwo() {
+        document.querySelector(DOMStrings.timerDisplay).textContent = 60;
+        document.querySelector(DOMStrings.mainHeading).classList.remove('animate-heading')
+        document.querySelector(DOMStrings.mainHeading).textContent = "NOT HARD";
+        document.querySelector(DOMStrings.mainHeading).classList.add('animate-heading')
+        document.body.classList.add('level-two-animate')
+    }
+    function animateToLevelThree() {
+        document.querySelector(DOMStrings.timerDisplay).textContent = 60;
+        document.body.classList.remove('level-two-animate')
+        document.querySelector(DOMStrings.mainHeading).classList.remove('animate-heading')
+        document.querySelector(DOMStrings.mainHeading).textContent = "NOT EASY";
+        document.querySelector(DOMStrings.mainHeading).classList.add('animate-heading')
+        document.body.classList.add('level-threeBg-animate')
+        document.querySelector(DOMStrings.displaySequence).classList.add("level-threeContainer-animate")
+    }
+    function animateToLevelFour() {
+        document.querySelector(DOMStrings.timerDisplay).textContent = 60;
+        document.body.classList.remove('level-threeBg-animate')
+        document.querySelector(DOMStrings.displaySequence).classList.remove("level-threeContainer-animate");
+        document.querySelector(DOMStrings.displaySequence).classList.add("level-fourContainer-animate");
+        document.querySelector(DOMStrings.mainHeading).classList.remove('animate-heading')
+        document.querySelector(DOMStrings.mainHeading).textContent = "EASILY HARD";
+        document.querySelector(DOMStrings.mainHeading).classList.add('animate-heading')
+        document.querySelector(DOMStrings.specialLevelPage).classList.remove('display-none')
+        document.getElementById(DOMStrings.videoElementIDs[game.getGameLevel()]).classList.remove('display-none')
+        specialLevelLoop(game.getGameLevel());
+    }
+    function animateToLevelFive() {
+        specialLevelLoopEnd();
+        document.querySelector(DOMStrings.timerDisplay).textContent = 60;
+        document.getElementById(DOMStrings.videoElementIDs[game.getGameLevel() - 1]).classList.add('display-none');
+        document.querySelector(DOMStrings.displaySequence).classList.remove("level-fourContainer-animate");
+        document.querySelector(DOMStrings.displaySequence).classList.add("level-fiveContainer-animate");
+        document.querySelector(DOMStrings.mainHeading).classList.remove('animate-heading')
+        document.querySelector(DOMStrings.mainHeading).textContent = "ABSURDITY";
+        document.querySelector(DOMStrings.mainHeading).classList.add('animate-heading')
+        document.getElementById(DOMStrings.videoElementIDs[game.getGameLevel()]).classList.remove('display-none');
+        specialLevelLoop(game.getGameLevel());
+    }
+    function animateToCongratulationsPage() {
+        specialLevelLoopEnd();
+        document.querySelector('.end-page').classList.remove('display-none');
+        const credits = document.getElementById('credit-dialogue')
+        credits.autoplay();
+    }
+    function animateToGivenLevel(level) {
         switch (level) {
             case 1: animateToLevelOne(); break;
             case 2: animateToLevelTwo(); break;
             case 3: animateToLevelThree(); break;
             case 4: animateToLevelFour(); break;
             case 5: animateToLevelFive(); break;
+            case 6: animateToCongratulationsPage(); break;
         }
     }
     function animateOnKeyDown(input) {
@@ -438,6 +514,13 @@ const viewModule = ((game) => {
             case "ArrowRight": document.querySelector(DOMStrings.elementIDs.rightButton).classList.remove('right-keydown'); break;
         }
     }
+    function invalidInputAnimation() {
+        document.querySelector(DOMStrings.displaySequence).classList.add('invalid-input-animate');
+        setTimeout(() => {
+            document.querySelector(DOMStrings.displaySequence).classList.remove('invalid-input-animate');
+        }, 200)
+
+    }
     return {
         startTimer,
         stopTimer,
@@ -448,26 +531,31 @@ const viewModule = ((game) => {
         animateToRetry,
         animateToSameLevel,
         animateToLevelZero,
-        animateToNextLevel,
-        newSequence
+        animateToGivenLevel,
+        newSequence,
+        invalidInputAnimation
     };
 })(gameModule);
 
 const controller = ((game, view) => {
-
+    let sequenceCursor = 0;
     function initGame() {
         // Retry Button Listener
         document
             .querySelector(view.DOMStrings.retryButton)
             .addEventListener('click', () => {
-                view.stopTimer();
+                document.querySelector(view.DOMStrings.timerDisplay).textContent = 60;
+                sequenceCursor = 0;
+                view.startTimer();
                 game.playStartSound();
+                view.newSequence();
                 view.animateToSameLevel(game.getGameLevel());
             })
         // Home Button Listener
         document
             .querySelector(view.DOMStrings.homeButton)
             .addEventListener('click', () => {
+                document.body.className = 'container';
                 view.stopTimer();
                 game.playHomeSound();
                 view.animateToHomePage();
@@ -477,6 +565,16 @@ const controller = ((game, view) => {
         document
             .querySelector(view.DOMStrings.mainButton)
             .addEventListener("click", () => {
+                const element = document.documentElement;
+                if (element.requestFullscreen) {
+                    element.requestFullscreen();
+                } else if (element.mozRequestFullScreen) {
+                    element.mozRequestFullScreen();
+                } else if (element.webkitRequestFullscreen) {
+                    element.webkitRequestFullscreen();
+                } else if (element.msRequestFullscreen) {
+                    element.msRequestFullscreen();
+                }
                 view.animateToLevelZero();
                 game.startGame();
                 view.newSequence();
@@ -495,19 +593,17 @@ const controller = ((game, view) => {
         ).length;
         const arrowList = document.querySelectorAll(view.DOMStrings.randomKeyArrows);
         const directionContainer = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']
-        let index = 0;
+
         // Key Interactions Logic :
-        document.addEventListener("keydown", (e) => {
+        const onKeyDownEvent = (e) => {
             const keyPress = e.key;
             view.animateOnKeyDown(keyPress);
             if (!directionContainer.includes(keyPress)) {
                 return
             }
-            console.log(keyPress);
             const currentSpan = document.querySelectorAll(
                 '.arrow-element'
-            )[index];
-            console.log(currentSpan);
+            )[sequenceCursor];
             const currentSpanStyles = () => {
                 currentSpan.classList.add(
                     "arrow-transition-to-small",
@@ -541,34 +637,35 @@ const controller = ((game, view) => {
                     [`Arrow${currentValue}`]: isOppositeDirection && isCurrentSpanRed
                 };
             }, {});
-
             // UnSuccessful Sounds :
             // console.log(successfulGreenSounds[keyPress])
             // console.log(successfulRedSounds[keyPress])
             let unSuccessfulGreenSound = !successfulGreenSounds[keyPress];
             let unSuccessfulRedSounds = !successfulRedSounds[keyPress];
             // Gray Out Logic
-
             if (successfulGreenSounds[keyPress]) {
                 currentSpanStyles();
-                arrowList.forEach(item => console.log(item.innerHTML))
+                // arrowList.forEach(item => console.log(item.innerHTML))
                 game.playSuccessfulGreenArrowSound();
-                index++;
+                sequenceCursor++;
             } else if (successfulRedSounds[keyPress]) {
                 currentSpanStyles();
-                arrowList.forEach(item => console.log(item.innerHTML))
+                // arrowList.forEach(item => console.log(item.innerHTML))
                 game.playSuccessfulRedArrowSound();
-                index++;
+                sequenceCursor++;
             } else if (unSuccessfulGreenSound || unSuccessfulRedSounds) {
                 game.playInvalidInputSound();
+                view.invalidInputAnimation();
                 game.decrementGameLife();
                 // arrowList.forEach(item => console.log(item.innerHTML))
                 if (!game.getGameLife()) {
-                    index = 0;
+                    view.stopTimer();
+                    sequenceCursor = 0;
                     if (!game.getGameLevel()) {
                         game.playHomeSound();
                         game.resetGameState();
                         view.animateToHomePage();
+                        document.onkeydown = null;
                     }
                     else {
                         game.playRetrySound();
@@ -580,22 +677,30 @@ const controller = ((game, view) => {
                     view.DOMStrings.defaultLives
                 ).textContent = `x ${game.getGameLife()}`;
             }
-            if (index === arrowCount && game.getGameLife() > 0) {
-                arrowList.forEach(item => console.log(item.innerHTML))
+            if (sequenceCursor === arrowCount && game.getGameLife() > 0) {
+                // console.log('if (index === arrowCount && game.getGameLife() > 0)')
                 game.decrementSetValue();
-                view.newSequence();
-                index = 0;
+                // view.newSequence();
+                sequenceCursor = 0;
                 if (game.getSetValue() > 0) {
                     view.newSequence();
                     game.singleSetCompleteSound();
                 }
-                else if (!game.getSetValue) {
+                else if (!game.getSetValue()) {
+                    // view.stopTimer();
+                    console.log(game.getSetValue());
                     game.getLevelClearedSound();
                     game.levelUp();
-                    view.animateToNextLevel()
+                    document.querySelector(view.DOMStrings.defaultLives).textContent = `x ${game.getGameLife()}`
+                    view.animateToGivenLevel(game.getGameLevel())
+                    view.newSequence();
+                    // view.startTimer();
                 }
             }
-        });
+        };
+        document.onkeydown = null;
+        document.onkeydown = onKeyDownEvent;
+
     };
     return {
         initGame,

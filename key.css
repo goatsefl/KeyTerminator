@@ -104,6 +104,8 @@ body {
 	line-height: 5.5rem;
 	background-color: lightgreen;
 	transition: 0.5s all ease-in-out;
+	overflow: hidden;
+	z-index: 1;
 }
 ol,
 ul {
@@ -247,7 +249,9 @@ button {
 	left: 50%;
 	transform: translate(-50%, -50%);
 }
-
+.game-title{
+	transition: all .3s cubic-bezier(.1,.1,.1,.1);
+}
 .game-metadata {
 	display: flex;
 	width: 80%;
@@ -574,14 +578,14 @@ video{
 	min-width: 100%;
 	transform: translate(-50%,-50%);
 }
-.level-four-background{
+.special-level-background{
 	position: fixed;
 	top: 0;
 	left: 0;
 	width: 100%;
 	height: 100%;
 	overflow: hidden;
-	z-index: -1;
+	z-index: -1
 }
 
 /* .transition-retry-to-level{
@@ -650,50 +654,101 @@ video{
 	transform: translate(0vw,0vh);
 	animation: b .3s cubic-bezier(.1,.1,.1,.1);
 }
+
 @keyframes b {
   0% {
-    transform: translate(34vw, -37.5vh); /* Starting position */
-    font-size: 45px;
+	transform: translate(34vw, -37.5vh); /* Starting position */
+	font-size: 45px;
   }
   10% {
-    transform: translate(32vw, -20vh); /* Start moving up */
-    font-size: 46px;
+	transform: translate(32vw, -20vh); /* Start moving up */
+	font-size: 46px;
   }
   20% {
-    transform: translate(30vw, -10vh); /* Continue upward */
-    font-size: 48px;
+	transform: translate(30vw, -10vh); /* Continue upward */
+	font-size: 48px;
   }
   30% {
-    transform: translate(25vw, 0vh); /* Move left slightly */
-    font-size: 50px;
+	transform: translate(25vw, 0vh); /* Move left slightly */
+	font-size: 50px;
   }
   40% {
-    transform: translate(20vw, 5vh); /* Rightward curve */
-    font-size: 55px;
+	transform: translate(20vw, 5vh); /* Rightward curve */
+	font-size: 55px;
   }
   50% {
-    transform: translate(15vw, 8vh); /* Leveling out */
-    font-size: 60px;
+	transform: translate(15vw, 8vh); /* Leveling out */
+	font-size: 60px;
   }
   60% {
-    transform: translate(10vw, 10vh); /* Continue moving left */
-    font-size: 70px;
+	transform: translate(10vw, 10vh); /* Continue moving left */
+	font-size: 70px;
   }
   70% {
-    transform: translate(6vw, 7vh); /* Further upward */
-    font-size: 75px;
+	transform: translate(6vw, 7vh); /* Further upward */
+	font-size: 75px;
   }
   80% {
-    transform: translate(4vw, 3vh); /* Approaching starting position */
-    font-size: 80px;
+	transform: translate(4vw, 3vh); /* Approaching starting position */
+	font-size: 80px;
   }
   90% {
-    transform: translate(2vw, 1vh); /* Near the original position */
-    font-size: 90px;
+	transform: translate(2vw, 1vh); /* Near the original position */
+	font-size: 90px;
   }
   100% {
-    transform: translate(0vw, 0vh); /* Final position */
-    font-size: 100px;
+	transform: translate(0vw, 0vh); /* Final position */
+	font-size: 100px;
+  }
+}
+.transition-to-retry-page{
+	transform: translate(0vw,0vh);
+	animation: c .3s cubic-bezier(.1,.1,.1,.1);
+}
+@keyframes c {
+  0% {
+	transform: translate(34vw, -37.5vh); /* Starting position */
+	font-size: 45px;
+  }
+  10% {
+	transform: translate(32vw, -20vh); /* Start moving up */
+	font-size: 46px;
+  }
+  20% {
+	transform: translate(30vw, -10vh); /* Continue upward */
+	font-size: 47px;
+  }
+  30% {
+	transform: translate(25vw, 0vh); /* Move left slightly */
+	font-size: 48px;
+  }
+  40% {
+	transform: translate(20vw, 5vh); /* Rightward curve */
+	font-size: 49px;
+  }
+  50% {
+	transform: translate(15vw, 8vh); /* Leveling out */
+	font-size: 50px;
+  }
+  60% {
+	transform: translate(10vw, 10vh); /* Continue moving left */
+	font-size: 51px;
+  }
+  70% {
+	transform: translate(6vw, 7vh); /* Further upward */
+	font-size: 52px;
+  }
+  80% {
+	transform: translate(4vw, 3vh); /* Approaching starting position */
+	font-size: 53px;
+  }
+  90% {
+	transform: translate(2vw, 1vh); /* Near the original position */
+	font-size: 54px;
+  }
+  100% {
+	transform: translate(0vw, 0vh); /* Final position */
+	font-size: 55px;
   }
 }
 
@@ -852,7 +907,7 @@ video{
 	background-color: lightgreen;
 }
 .bg-change-colors{
-	animation : changeBackground 60s cubic-bezier(.1,.1,.1,.1) infinite
+	animation : changeBackground 60s cubic-bezier(.1,.1,.1,.1) infinite;
 }
 @keyframes changeBackground {
   0%   { background-color: whitesmoke; }  /* #f5f5f5 */
@@ -876,6 +931,32 @@ video{
   90%  { background-color: peachpuff; }        /* #ffdab9 */
   95%  { background-color: white; }            /* #ffffff */
   100% { background-color: whitesmoke; }      /* #f5f5f5 */
+}
+.game-over-text{
+	animation : changeTextColor 60s cubic-bezier(.1,.1,.1,.1) infinite;
+}
+@keyframes changeTextColor {
+  0%   { color: #282c34; }  /* Dark gray */
+  5%   { color: #4c4c9d; }  /* Complementary of lavender */
+  10%  { color: #0f0; }     /* Bright green */
+  15%  { color: #ffcc00; }  /* Bright yellow */
+  20%  { color: #c00; }     /* Red */
+  25%  { color: #ff7f00; }  /* Orange */
+  30%  { color: #0066cc; }  /* Bright blue */
+  35%  { color: #003366; }  /* Dark blue */
+  40%  { color: #ff00ff; }  /* Magenta */
+  45%  { color: #0000cc; }  /* Deep blue */
+  50%  { color: #ff0000; }  /* Bright red */
+  55%  { color: #660066; }  /* Dark purple */
+  60%  { color: #999999; }  /* Light gray */
+  65%  { color: #33cc33; }  /* Bright green */
+  70%  { color: #ff6600; }  /* Orange */
+  75%  { color: #3333cc; }  /* Medium blue */
+  80%  { color: #663300; }  /* Brown */
+  85%  { color: #ffff00; }  /* Yellow */
+  90%  { color: #333333; }  /* Dark gray */
+  95%  { color: #282c34; }  /* Dark gray */
+  100% { color: #282c34; }  /* Dark gray */
 }
 
 /* Font-family */
@@ -907,6 +988,17 @@ video{
 
 /* Keyboard Animations*/
 
+.invalid-input-animate{
+	animation: invalidShake .2s cubic-bezier(.1,.1,.1,.1);
+}
+@keyframes invalidShake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+}
+
 .up-keydown{
 	transform: scale(.95) translateY(-3px);
 	box-shadow: 0px 0px 10px 5px black inset;
@@ -926,4 +1018,139 @@ video{
 	transform: scale(.95) translateX(-20px);
 	box-shadow: 0px 0px 10px 5px black inset;
 	transition: all .2s ease-in;
+}
+
+/* Level Animations */
+
+.level-two-animate{
+	animation : levelTwo 10s cubic-bezier(.1,.1,.1,.1) infinite;
+}
+@keyframes levelTwo{
+	0%{
+		background-color: orangered;
+	}
+	25%{
+		background-color: lightgreen;
+	}
+	50%{
+		background-color: black;
+	}
+	75%{
+		background-color: white;
+	}
+	100%{
+		background-color: orangered;
+	}
+}
+.level-threeBg-animate{
+	animation : levelThreeBg 10s cubic-bezier(.1,.1,.1,.1) infinite;
+}
+.level-threeContainer-animate{
+	animation: levelThreeContainer 6s cubic-bezier(.1,.1,.1,.1) infinite;
+}
+@keyframes levelThreeContainer {
+	0%{
+		transform: translate(-45px,0px);
+	}
+	25%{
+		transform: translate(0px,45px);
+	}
+	50%{
+		transform: translate(90px,0px);
+	}
+	75%{
+		transform: translate(0px,-45px);
+	}
+	100%{
+		transform: translate(-45px,0px);
+	}
+}
+
+@keyframes levelThreeBg{
+	0%{
+		background-color: orangered;
+	}
+	25%{
+		background-color: lightgreen;
+	}
+	50%{
+		background-color: black;
+	}
+	75%{
+		background-color: white;
+	}
+	100%{
+		background-color: orangered;
+	}
+}
+
+.level-fourContainer-animate{
+	animation: animateHearts 28s cubic-bezier(.1,.1,.1,.1) infinite;
+}
+@keyframes animateHearts {
+	0% { transform: translate(0px,-10px) rotate(-3deg) scale(.7); }
+    3.57% { transform: translate(0px,-10px) rotate(-4deg) scale(.6); }  
+    7.14% { transform: translate(0px,0px) rotate(-3deg) scale(.6); }  
+    10.71% { transform: translate(0px,10px) rotate(-4deg) scale(.6); } 
+    14.28% { transform: translate(0px,5px) rotate(-2deg) scale(.6); } 
+    17.85% { transform: translate(0px,-15px) rotate(-4deg) scale(.6); } 
+    21.42% { transform: translate(0px,0px) rotate(-5deg) scale(.6); } 
+    25% { transform: translate(0px,0px) rotate(-6deg) scale(0.5); }    
+    28.57% { transform: translate(0px,5px) rotate(-3deg) scale(0.5); } 
+    32.14% { transform: translate(0px,2px) rotate(-1deg) scale(.5); } 
+    35.71% { transform: translate(0px,0px) rotate(0deg) scale(.6); } 
+    39.28% { transform: translate(0px,-1px) rotate(-1deg) scale(.6); } 
+    42.85% { transform: translate(0px,0px) rotate(0deg) scale(.6)} 
+    46.42% { transform: translate(0px,1px) rotate(-2deg) scale(.6); } 
+    50% { transform: translate(0px,0px) rotate(180deg) scale(.6); }    
+    53.57% { transform: translate(0px,1px) rotate(184deg) scale(.6); } 
+    57.14% { transform: translate(0px,0px) rotate(185deg) scale(.6); } 
+    60.71% { transform: translate(0px,2px) rotate(184deg) scale(.6); } 
+    64.28% { transform: translate(0px,1px) rotate(185deg) scale(.6); } 
+    67.85% { transform: translate(0px,-3px) rotate(187deg) scale(.6); } 
+    71.42% { transform: translate(0px,0px) rotate(188deg) scale(.5); } 
+    75% { transform: translate(0px,1px) rotate(185deg) scale(.5); }    
+    78.57% { transform: translate(0px,0px) rotate(183deg) scale(.6); } 
+    82.14% { transform: translate(0px,0px) rotate(180deg) scale(.6); } 
+    85.71% { transform: translate(0px,-2px) rotate(178deg) scale(.6); } 
+    89.28% { transform: translate(0px,-1px) rotate(177deg) scale(.6); } 
+    92.85% { transform: translate(0px, -2px) rotate(178deg) scale(.6); } 
+    96.42% { transform: translate(0px, 0px) rotate(179deg) scale(.65); } 
+    100% { transform: translate(0px,0px) rotate(-3deg) scale(.7); }   
+}
+.animate-heading{
+	animation: headingScale .3s ease;
+}
+@keyframes headingScale {
+	0%{
+		transform: scale(1.2);
+	}
+	50%{
+		transform: scale(1.3);
+	}
+	100%{
+		transform: scale(1);
+	}
+}
+.level-fiveContainer-animate{
+	transform: translateY(-60px);
+	animation: animateSpiral 3s ease infinite;
+}
+@keyframes animateSpiral {
+	0%{
+		transform: scale(.55) rotate(0deg);
+	}
+	50%{
+		transform: scale(.55) rotate(180deg);
+	}
+	100%{
+		transform: scale(.55) rotate(0deg);
+	}
+}
+.standard-level-animate-page{
+	display: absolute;
+	z-index: -1;
+	width: 100vw;
+	height: 100vh;
+	overflow: hidden;
 }
