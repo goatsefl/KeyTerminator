@@ -162,7 +162,10 @@ const gameModule = (() => {
             gameState.gameAudio.keyboardSounds.invalidAudio,
             gameState.gameAudio.keyboardSounds.greenAudio,
             gameState.gameAudio.keyboardSounds.redAudio,
-        ].forEach((audio) => audio.muted = true);
+        ].forEach((audio) => {
+            audio.pause();
+            audio.muted = true;
+        });
     }
     function getSound() {
         return gameState.sound;
@@ -486,6 +489,7 @@ const viewModule = ((game) => {
         document.querySelector(DOMStrings.timerDisplay).textContent = 60;
         document.querySelector(DOMStrings.mainHeading).classList.remove('animate-heading')
         document.querySelector(DOMStrings.mainHeading).textContent = 'EASY';
+        document.body.className = 'container whitesmoke-bg'
         document.querySelector(DOMStrings.mainHeading).classList.add('animate-heading')
     }
     function animateToLevelTwo() {
