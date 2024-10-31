@@ -320,7 +320,144 @@ button {
 	display: flex;
 	justify-content: center;
 }
+/* SOUND BUTTON STARTS*/
+.audio{
+    position: absolute;
+	background-color: transparent;
+    top: 93vh;
+    left: 0vw;
+    justify-content:space-around;
+    height: fit-content;
+    width: 25%;
+}
+.game-sound{
+	font-family: 'Courier New';
+	font-weight: 100;
+	font-size: 35px;
+	color: black;
+	background-color: transparent;
+	border: none;
+	transition: all .3s cubic-bezier(.1,.1,.1,.1);
+}
+.game-music{
+	font-family: 'Courier New';
+	font-weight: 100;
+	font-size: 35px;
+	color: black;
+	background-color: transparent;
+	border: none;
+	transition: all .3s cubic-bezier(.1,.1,.1,.1);
+}
+.mute-unmute{
+	font-family: 'Courier New';
+	font-weight: 100;
+	font-size: 35px;
+    color: black;
+	background-color: transparent;
+	border: none;
+	transition: all .3s cubic-bezier(.1,.1,.1,.1);
+}
+/* SOUND: ON HOVER */
+.game-sound:hover{
+	color: white;
+	font-weight: 600;
+	background-color: green;
+	border-radius: 5px;
+	border: 2px solid darkgreen;
+}
+.mute-unmute:hover{
+	color: white;
+	font-weight: 600;
+	background-color: green;
+	border-radius: 5px;
+	border: 2px solid darkgreen;
+}
+.game-music:hover{
+	color: white;
+	font-weight: 600;
+	background-color: green;
+	border-radius: 5px;
+	border: 2px solid darkgreen;
+}
+.game-sound:active{
+	transform: scale(.9);
+	transition: all .1s cubic-bezier(.1,.1,.1,.1);
+}
+.mute-unmute:active{
+	transform: scale(.9);
+	transition: all .1s cubic-bezier(.1,.1,.1,.1);
+}
+.game-music:active{
+	transform: scale(.9);
+	transition: all .1s cubic-bezier(.1,.1,.1,.1);
+}
+.line-through{
+	text-decoration: line-through crimson 5px;
+}
+.game-music:not(:hover){
+	transition: all .3s cubic-bezier(.1,.1,.1,.1);
+}
+.mute-unmute:not(:hover){
+	transition: all .3s cubic-bezier(.1,.1,.1,.1);
+}
+.game-sound:not(:hover){
+	transition: all .3s cubic-bezier(.1,.1,.1,.1);
+}
+/* SOUND ENDS */
 
+/* GAME-INSTRUCTIONS */
+.game-instructions{
+	height: 40px;
+    font-size: 40px;
+	background-color: transparent;
+    display: flex;
+	justify-content: center;
+	align-items: center;
+    position: absolute;
+    top: 93vh;
+    left: 85vw;
+	border: none;
+	cursor: pointer;
+	transition: all .4s ease;
+}
+.game-instructions:hover{
+	border-bottom: 2px dashed black;
+}
+.game-instructions:hover+.gameplay-guide{
+	animation: popup .3s cubic-bezier(.1,.1,.1,.1);
+	opacity: 1;
+}
+/* guide-pop animation */
+@keyframes popup {
+	0%{
+		opacity: .3;
+	}
+	50%{
+		opacity: .5;
+	}
+	100%{
+		opacity: 1;
+	}
+}
+.game-instructions:not(:hover) + .gameplay-guide{
+	animation: popup .3s cubic-bezier(.1,.1,.1,.1);
+	opacity: 0;
+}
+.gameplay-guide{
+	opacity: 0;
+	position:absolute;
+	box-shadow: 0px 0px 30px black inset;
+	top:70vh;
+	left:84vw;
+	border-radius: 10%;
+	border: 2px ridge black;
+}
+
+.flex-center-full-audio{
+	font-family: 'Courier New';
+	display: flex;
+	align-items: center;
+}
 .flex-center-full {
 	display: flex;
 	justify-content: center;
@@ -1153,4 +1290,8 @@ video{
 	width: 100vw;
 	height: 100vh;
 	overflow: hidden;
+}
+
+.text-decoration{
+	text-decoration:line-through 5px solid red;
 }

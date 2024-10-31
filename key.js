@@ -12,6 +12,7 @@ const gameModule = (() => {
             currentSetValue: 1,
         },
         isStart: false,
+        mute: false,
         sound: true,
         gameAudio: {
             gameBackgroundMusic: new Audio("GameAudio/gameBackgroundMusic.mp3"),
@@ -37,6 +38,12 @@ const gameModule = (() => {
         gameState.gameAudio.clickAudio.play();
         gameState.isStart = true;
         gameState.currentLevel = 0;
+    }
+    function getMute() {
+        return gameState.mute;
+    }
+    function resetBGM() {
+        gameState.gameAudio.gameBackgroundMusic.currentTime = 0;
     }
     function gameOver() {
         resetGameState();
@@ -98,6 +105,22 @@ const gameModule = (() => {
     function endGame() {
         resetGameState();
     }
+    function stopKeyBoardSounds() {
+        gameState.sound = false;
+        [
+            gameState.gameAudio.keyboardSounds.greenAudio,
+            gameState.gameAudio.keyboardSounds.redAudio,
+            gameState.gameAudio.keyboardSounds.invalidAudio
+        ].forEach((audio) => audio.muted = true)
+    }
+    function playKeyBoardSounds() {
+        gameState.sound = true;
+        [
+            gameState.gameAudio.keyboardSounds.greenAudio,
+            gameState.gameAudio.keyboardSounds.redAudio,
+            gameState.gameAudio.keyboardSounds.invalidAudio
+        ].forEach((audio) => audio.muted = false)
+    }
     function decrementSetValue() {
         gameState.levelsInfo.currentSetValue--;
     }
@@ -113,6 +136,9 @@ const gameModule = (() => {
     function singleSetCompleteSound() {
         gameState.gameAudio.setCompleteSound.play();
     }
+    function getGameSoundValue() {
+        return gameState.sound;
+    }
     function playInvalidInputSound() {
         gameState.gameAudio.keyboardSounds.invalidAudio.play();
     }
@@ -123,8 +149,11 @@ const gameModule = (() => {
         gameState.gameAudio.keyboardSounds.redAudio.play();
     }
     function muteAudio() {
+        gameState.mute = true;
         gameState.sound = false;
         [
+            gameState.gameAudio.homeSound,
+            gameState.gameAudio.retrySound,
             gameState.gameAudio.levelClearedSound,
             gameState.gameAudio.gameBackgroundMusic,
             gameState.gameAudio.startSound,
@@ -133,11 +162,17 @@ const gameModule = (() => {
             gameState.gameAudio.keyboardSounds.invalidAudio,
             gameState.gameAudio.keyboardSounds.greenAudio,
             gameState.gameAudio.keyboardSounds.redAudio,
-        ].forEach((audio) => audio.pause());
+        ].forEach((audio) => audio.muted = true);
+    }
+    function getSound() {
+        return gameState.sound;
     }
     function unMuteAudio() {
+        gameState.mute = false;
         gameState.sound = true;
         [
+            gameState.gameAudio.homeSound,
+            gameState.gameAudio.retrySound,
             gameState.gameAudio.levelClearedSound,
             gameState.gameAudio.gameBackgroundMusic,
             gameState.gameAudio.startSound,
@@ -146,10 +181,7 @@ const gameModule = (() => {
             gameState.gameAudio.keyboardSounds.invalidAudio,
             gameState.gameAudio.keyboardSounds.greenAudio,
             gameState.gameAudio.keyboardSounds.redAudio,
-        ].forEach((audio) => {
-            audio.currentTime = 0;
-            audio.play();
-        });
+        ].forEach((audio) => audio.muted = false);
     }
     function decrementGameLife() {
         gameState.lives--;
@@ -162,6 +194,12 @@ const gameModule = (() => {
     }
 
     return {
+        getSound,
+        getMute,
+        resetBGM,
+        playKeyBoardSounds,
+        getGameSoundValue,
+        stopKeyBoardSounds,
         getSpecialBg,
         getTimerValue,
         playStartSound,
@@ -209,12 +247,16 @@ const viewModule = ((game) => {
                 if (seconds <= 0) {
                     stopTimer();
                     if (!game.getGameLevel()) {
-                        game.playHomeSound();
+                        if (!game.getMute()) {
+                            game.playHomeSound();
+                        }
                         game.resetGameState();
                         animateToHomePage();
                     }
                     else {
-                        game.playRetrySound();
+                        if (!game.getMute()) {
+                            game.playRetrySound();
+                        }
                         animateToRetry();
                         game.gameRetry();
                     }
@@ -257,6 +299,10 @@ const viewModule = ((game) => {
         keyboardContents: ".keyboard-buttons",
         gameOverPage: '.game-over-heading',
         specialLevelPage: '.special-level-background',
+        gameInstruction: '.game-instructions',
+        gameSound: '.game-sound',
+        gameMusic: '.game-music',
+        gameMuteUnmute: '.mute-unmute'
     };
     function startLoop(video) {
         video.currentTime = 0;
@@ -483,6 +529,7 @@ const viewModule = ((game) => {
         specialLevelLoop(game.getGameLevel());
     }
     function animateToCongratulationsPage() {
+        document.querySelector(DOMStrings.gamePlayView).classList.add('display-none')
         specialLevelLoopEnd();
         document.querySelector('.end-page').classList.remove('display-none');
         const credits = document.getElementById('credit-dialogue')
@@ -540,6 +587,7 @@ const viewModule = ((game) => {
 const controller = ((game, view) => {
     let sequenceCursor = 0;
     function initGame() {
+        game.gameMusicPlay();
         // Retry Button Listener
         document
             .querySelector(view.DOMStrings.retryButton)
@@ -556,6 +604,7 @@ const controller = ((game, view) => {
             .querySelector(view.DOMStrings.homeButton)
             .addEventListener('click', () => {
                 document.body.className = 'container';
+                document.querySelector(view.DOMStrings.gameInstruction).classList.remove('display-none');
                 view.stopTimer();
                 game.playHomeSound();
                 view.animateToHomePage();
@@ -565,6 +614,7 @@ const controller = ((game, view) => {
         document
             .querySelector(view.DOMStrings.mainButton)
             .addEventListener("click", () => {
+                sequenceCursor = 0;
                 const element = document.documentElement;
                 if (element.requestFullscreen) {
                     element.requestFullscreen();
@@ -575,6 +625,7 @@ const controller = ((game, view) => {
                 } else if (element.msRequestFullscreen) {
                     element.msRequestFullscreen();
                 }
+                document.querySelector(view.DOMStrings.gameInstruction).classList.add('display-none');
                 view.animateToLevelZero();
                 game.startGame();
                 view.newSequence();
@@ -586,6 +637,58 @@ const controller = ((game, view) => {
                 let input = e.key;
                 view.animateOnKeyUp(input);
             })
+        // Music button
+        var bool = false;
+        document.querySelector(view.DOMStrings.gameMusic).addEventListener('click', () => {
+            bool = !bool;
+            if (bool) {
+                game.gameMusicPlay();
+                document.querySelector(view.DOMStrings.gameMusic).classList.remove('text-decoration');
+            }
+            else {
+                game.gameMusicStop();
+                document.querySelector(view.DOMStrings.gameMusic).classList.add('text-decoration');
+            }
+        })
+        // Sound Button
+        var boolTwo = true;
+        document.querySelector(view.DOMStrings.gameSound).addEventListener('click', () => {
+            boolTwo = !boolTwo;
+            if (boolTwo) {
+                game.playKeyBoardSounds();
+                document.querySelector(view.DOMStrings.gameSound).classList.remove('text-decoration')
+            }
+            else {
+                game.stopKeyBoardSounds();
+                document.querySelector(view.DOMStrings.gameSound).classList.add('text-decoration')
+            }
+        })
+        // Mute button
+        var boolThree = true;
+        document.querySelector(view.DOMStrings.gameMuteUnmute).addEventListener('click', () => {
+            boolThree = !boolThree;
+            if (boolThree) {
+                if (bool) {
+                    game.gameMusicPlay();
+                }
+                game.unMuteAudio();
+                document.querySelector(view.DOMStrings.gameMuteUnmute).classList.remove('text-decoration')
+                document.querySelector(view.DOMStrings.gameMusic).classList.remove('display-none');
+                document.querySelector(view.DOMStrings.gameSound).classList.remove('display-none');
+            }
+            else {
+                game.gameMusicStop();
+                game.muteAudio();
+                document.querySelector(view.DOMStrings.gameMuteUnmute).classList.add('text-decoration');
+                document.querySelector(view.DOMStrings.gameMusic).classList.add('display-none');
+                document.querySelector(view.DOMStrings.gameSound).classList.add('display-none');
+            }
+        })
+        // If Music ends, looping function 
+        document.querySelector(view.DOMStrings.gameMusic).addEventListener('ended', () => {
+            game.resetBGM();
+            game.gameMusicPlay();
+        })
     }
     function gameStart() {
         const arrowCount = document.querySelectorAll(
@@ -645,16 +748,26 @@ const controller = ((game, view) => {
             // Gray Out Logic
             if (successfulGreenSounds[keyPress]) {
                 currentSpanStyles();
-                // arrowList.forEach(item => console.log(item.innerHTML))
-                game.playSuccessfulGreenArrowSound();
+                if (!game.getMute()) {
+                    if (game.getSound()) {
+                        game.playSuccessfulGreenArrowSound();
+                    }
+                }
                 sequenceCursor++;
             } else if (successfulRedSounds[keyPress]) {
                 currentSpanStyles();
-                // arrowList.forEach(item => console.log(item.innerHTML))
-                game.playSuccessfulRedArrowSound();
+                if (!game.getMute()) {
+                    if (game.getSound()) {
+                        game.playSuccessfulRedArrowSound();
+                    }
+                }
                 sequenceCursor++;
             } else if (unSuccessfulGreenSound || unSuccessfulRedSounds) {
-                game.playInvalidInputSound();
+                if (!game.getMute()) {
+                    if (game.getSound()) {
+                        game.playInvalidInputSound();
+                    }
+                }
                 view.invalidInputAnimation();
                 game.decrementGameLife();
                 // arrowList.forEach(item => console.log(item.innerHTML))
@@ -662,13 +775,17 @@ const controller = ((game, view) => {
                     view.stopTimer();
                     sequenceCursor = 0;
                     if (!game.getGameLevel()) {
-                        game.playHomeSound();
+                        if (!game.getMute()) {
+                            game.playHomeSound();
+                        }
                         game.resetGameState();
                         view.animateToHomePage();
                         document.onkeydown = null;
                     }
                     else {
-                        game.playRetrySound();
+                        if (!game.getMute()) {
+                            game.playRetrySound();
+                        }
                         view.animateToRetry();
                         game.gameRetry();
                     }
@@ -684,12 +801,16 @@ const controller = ((game, view) => {
                 sequenceCursor = 0;
                 if (game.getSetValue() > 0) {
                     view.newSequence();
-                    game.singleSetCompleteSound();
+                    if (!game.getMute()) {
+                        game.singleSetCompleteSound();
+                    }
                 }
                 else if (!game.getSetValue()) {
                     // view.stopTimer();
                     console.log(game.getSetValue());
-                    game.getLevelClearedSound();
+                    if (!game.getMute()) {
+                        game.getLevelClearedSound();
+                    }
                     game.levelUp();
                     document.querySelector(view.DOMStrings.defaultLives).textContent = `x ${game.getGameLife()}`
                     view.animateToGivenLevel(game.getGameLevel())
