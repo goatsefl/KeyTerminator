@@ -591,7 +591,6 @@ const viewModule = ((game) => {
 const controller = ((game, view) => {
     let sequenceCursor = 0;
     function initGame() {
-        game.gameMusicPlay();
         // Retry Button Listener
         document
             .querySelector(view.DOMStrings.retryButton)
