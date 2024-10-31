@@ -795,9 +795,7 @@ const controller = ((game, view) => {
                 ).textContent = `x ${game.getGameLife()}`;
             }
             if (sequenceCursor === arrowCount && game.getGameLife() > 0) {
-                // console.log('if (index === arrowCount && game.getGameLife() > 0)')
                 game.decrementSetValue();
-                // view.newSequence();
                 sequenceCursor = 0;
                 if (game.getSetValue() > 0) {
                     view.newSequence();
@@ -806,7 +804,6 @@ const controller = ((game, view) => {
                     }
                 }
                 else if (!game.getSetValue()) {
-                    // view.stopTimer();
                     console.log(game.getSetValue());
                     if (!game.getMute()) {
                         game.getLevelClearedSound();
@@ -815,7 +812,6 @@ const controller = ((game, view) => {
                     document.querySelector(view.DOMStrings.defaultLives).textContent = `x ${game.getGameLife()}`
                     view.animateToGivenLevel(game.getGameLevel())
                     view.newSequence();
-                    // view.startTimer();
                 }
             }
         };
