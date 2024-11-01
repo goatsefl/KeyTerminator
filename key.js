@@ -128,6 +128,7 @@ const gameModule = (() => {
     }
     function resetSetValue() {
         gameState.levelsInfo.currentSetValue = gameState.levelsInfo.setInEachLevel[gameState.levelsInfo.currentLevel];
+        console.log(gameState.levelsInfo.currentSetValue);
     }
     function gameMusicPlay() {
         gameState.music = true;
