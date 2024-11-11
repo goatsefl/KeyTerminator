@@ -140,8 +140,8 @@ const gameModule = (() => {
         gameState.gameAudio.gameBackgroundMusic.pause();
     }
     function changeSoundState() {
-        if (gameState.sound) { return gameState.sound = false } else {
-            return gameState.sound = true;
+        if (gameState.sound) { gameState.sound = false; return true } else {
+            gameState.sound = true; return false;
         }
     }
     function getLevelClearedSound() {
@@ -612,6 +612,8 @@ const viewModule = ((game) => {
 const controller = ((game, view) => {
     let sequenceCursor = 0;
     function initGame() {
+        document.querySelector(view.DOMStrings.gameMusic).classList.add('text-decoration');
+        document.querySelector(view.DOMStrings.gameSound).classList.add('text-decoration')
         // Retry Button Listener
         document
             .querySelector(view.DOMStrings.retryButton)
