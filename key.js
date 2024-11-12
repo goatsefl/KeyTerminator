@@ -33,10 +33,12 @@ const gameModule = (() => {
     });
     var gameState = getInitialGameState();
     function startGame() {
-        gameState.gameAudio.clickAudio.addEventListener("ended", () => {
-            gameState.gameAudio.startSound.play();
-        });
-        gameState.gameAudio.clickAudio.play();
+        if (!getMute()) {
+            gameState.gameAudio.clickAudio.addEventListener("ended", () => {
+                gameState.gameAudio.startSound.play();
+            });
+            gameState.gameAudio.clickAudio.play();
+        }
         gameState.isStart = true;
         gameState.currentLevel = 0;
     }
@@ -44,7 +46,7 @@ const gameModule = (() => {
         return gameState.gameAudio.gameBackgroundMusic;
     }
     function changeMuteState() {
-        return (gameState.mute) ? gameState.mute = false : gameState.mute = true;
+        (gameState.mute) ? gameState.mute = false : gameState.mute = true;
     }
     function getMute() {
         return gameState.mute;
@@ -105,6 +107,9 @@ const gameModule = (() => {
     function getGameLevel() {
         return gameState.levelsInfo.currentLevel;
     }
+    function resetGameLevel() {
+        gameState.levelsInfo.currentLevel = 0;
+    }
     function getGameLife() {
         // for debugging purpose, Added getGameLife().
         return gameState.lives;
@@ -140,9 +145,7 @@ const gameModule = (() => {
         gameState.gameAudio.gameBackgroundMusic.pause();
     }
     function changeSoundState() {
-        if (gameState.sound) { gameState.sound = false; return true } else {
-            gameState.sound = true; return false;
-        }
+        (gameState.sound) ? gameState.sound = false : gameState.sound = true;
     }
     function getLevelClearedSound() {
         return gameState.gameAudio.levelClearedSound.play();
@@ -212,6 +215,7 @@ const gameModule = (() => {
     }
 
     return {
+        resetGameLevel,
         getBackGroundMusic,
         resetSetValue,
         changeMuteState,
@@ -273,7 +277,9 @@ const viewModule = ((game) => {
                         if (!game.getMute()) {
                             game.playHomeSound();
                         }
-                        game.resetGameState();
+                        game.resetGameLevel();
+                        game.gameRetry();
+                        game.resetSetValue();
                         animateToHomePage();
                     }
                     else {
@@ -621,7 +627,9 @@ const controller = ((game, view) => {
                 document.querySelector(view.DOMStrings.timerDisplay).textContent = 60;
                 sequenceCursor = 0;
                 view.startTimer();
-                game.playStartSound();
+                if (!game.getMute()) {
+                    game.playStartSound();
+                }
                 view.newSequence();
                 view.animateToSameLevel(game.getGameLevel());
             })
@@ -632,7 +640,9 @@ const controller = ((game, view) => {
                 document.body.className = 'container';
                 document.querySelector(view.DOMStrings.gameInstruction).classList.remove('display-none');
                 view.stopTimer();
-                game.playHomeSound();
+                if (!game.getMute()) {
+                    game.playHomeSound();
+                }
                 view.animateToHomePage();
                 game.resetGameState();
             })
@@ -682,7 +692,8 @@ const controller = ((game, view) => {
         })
         // Sound Button
         document.querySelector(view.DOMStrings.gameSound).addEventListener('click', () => {
-            if (game.changeSoundState()) {
+            game.changeSoundState();
+            if (game.getSound()) {
                 game.playKeyBoardSounds();
                 document.querySelector(view.DOMStrings.gameSound).classList.remove('text-decoration')
             }
@@ -693,7 +704,8 @@ const controller = ((game, view) => {
         })
         // Mute button
         document.querySelector(view.DOMStrings.gameMuteUnmute).addEventListener('click', () => {
-            if (!game.changeMuteState()) {
+            game.changeMuteState();
+            if (!game.getMute()) {
                 game.unMuteAudio();
                 document.querySelector(view.DOMStrings.gameMuteUnmute).classList.remove('text-decoration')
                 document.querySelector(view.DOMStrings.gameMusic).classList.remove('display-none');
@@ -804,7 +816,10 @@ const controller = ((game, view) => {
                         if (!game.getMute()) {
                             game.playHomeSound();
                         }
-                        game.resetGameState();
+                        game.resetGameLevel();
+                        game.resetSetValue();
+                        game.gameRetry();
+                        // game.resetGameState();
                         view.animateToHomePage();
                         document.onkeydown = null;
                     }
